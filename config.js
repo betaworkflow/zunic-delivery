@@ -46,8 +46,12 @@ function callGAS(action, params) {
     'getConfirmedScheduleByDate', 'getDriverSheetData',
     'listDriveFiles', 'login'
   ];
-
-  var isGet = GET_ACTIONS.indexOf(action) !== -1;
+var ALL_GET = GET_ACTIONS.concat(['saveFuel','saveMileage','saveJobs',
+    'confirmSchedule','saveReturnResults','addSingleJob','deleteJob',
+    'updateJobType','updateJobStatus','moveToPickup','addPickup',
+    'markPickupDone','cancelPickupDone','restorePickupToDelivery',
+    'syncJobToSchedule','addOrUpdateCustomer','clearDayData']);
+  var isGet = ALL_GET.indexOf(action) !== -1;
 
   if (isGet) {
     var url = ZUNIC_CONFIG.GAS_URL + '?action=' + encodeURIComponent(action);
