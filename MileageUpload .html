@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>บันทึกไมล์รถ — ซูนิค</title>
+<script src="config.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--accent:#475569;--accent2:#334155;--green:#16a34a;--bg:#f8fafc;--surface:#fff;--border:#e2e8f0;--text:#1e293b;--text2:#64748b;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Sarabun',sans-serif;min-height:100vh;display:flex;flex-direction:column;}
+.header{background:var(--accent);color:#fff;padding:16px 20px;display:flex;align-items:center;gap:12px;}
+.badge{width:40px;height:40px;background:var(--accent2);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;}
+.header-text{font-size:17px;font-weight:700;}
+.header-sub{font-size:12px;opacity:.75;margin-top:2px;}
+.content{flex:1;padding:20px 16px;max-width:480px;margin:0 auto;width:100%;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px;}
+.card-title{font-size:13px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px;}
+.drv-row{display:flex;gap:10px;}
+.drv-btn{flex:1;padding:14px 8px;border-radius:9px;border:2px solid var(--border);background:var(--surface);font-family:'Sarabun',sans-serif;font-size:18px;font-weight:800;cursor:pointer;transition:all .15s;color:var(--text2);}
+.drv-btn.sel-A{border-color:#2563eb;background:#eff6ff;color:#2563eb;}
+.drv-btn.sel-B{border-color:#16a34a;background:#f0fdf4;color:#16a34a;}
+.drv-btn.sel-C{border-color:#d97706;background:#fffbeb;color:#d97706;}
+.upload-zone{border:2px dashed var(--border);border-radius:10px;padding:28px 16px;text-align:center;cursor:pointer;transition:all .15s;position:relative;overflow:hidden;}
+.upload-zone:hover{border-color:var(--accent);background:#f8fafc;}
+.upload-zone.has-img{border-style:solid;border-color:#16a34a;background:#f0fdf4;}
+.upload-icon{font-size:36px;margin-bottom:8px;}
+.upload-text{font-size:15px;font-weight:600;color:var(--text2);}
+.optional-tag{font-size:11px;color:#94a3b8;background:#f1f5f9;padding:2px 8px;border-radius:10px;margin-left:6px;}
+#imgPreview{width:100%;max-height:200px;object-fit:cover;border-radius:8px;display:none;margin-top:10px;}
+.fi{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;color:var(--text);font-family:'Sarabun',sans-serif;font-size:16px;transition:border-color .15s;}
+.fi:focus{outline:none;border-color:var(--accent);}
+.fi::placeholder{color:var(--text2);opacity:.5;}
+.fi-label{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:6px;display:block;}
+.fi-group{margin-bottom:14px;}
+.btn-submit{width:100%;padding:16px;border-radius:10px;border:none;background:var(--accent);color:#fff;font-family:'Sarabun',sans-serif;font-size:17px;font-weight:700;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-submit:hover{background:var(--accent2);}
+.btn-submit:disabled{opacity:.4;cursor:default;}
+.success-wrap{text-align:center;padding:40px 20px;}
+.success-icon{font-size:64px;margin-bottom:16px;}
+.success-title{font-size:22px;font-weight:800;margin-bottom:8px;}
+.success-sub{font-size:14px;color:var(--text2);line-height:1.7;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--text);color:#fff;border-radius:10px;padding:12px 20px;font-size:14px;transition:transform .25s;z-index:999;}
+.toast.on{transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="badge" id="drvBadge">🚚</div>
+  <div>
+    <div class="header-text">บันทึกไมล์รถ</div>
+    <div class="header-sub" id="headerSub">ห้างหุ้นส่วนจำกัด ซูนิค</div>
+  </div>
+</div>
+<div class="content" id="mainContent">
+  <div class="card" id="drvCard">
+    <div class="card-title">คนขับ</div>
+    <div class="drv-row">
+      <button class="drv-btn" onclick="selDrv('A',this)">A</button>
+      <button class="drv-btn" onclick="selDrv('B',this)">B</button>
+      <button class="drv-btn" onclick="selDrv('C',this)">C</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">รูปถ่ายไมล์รถ <span class="optional-tag">ไม่บังคับ</span></div>
+    <div class="upload-zone" id="uploadZone">
+      <div class="upload-icon">📷</div>
+      <div class="upload-text">เลือกวิธีอัพโหลด (ถ้ามี)</div>
+      <div style="display:flex;gap:10px;margin-top:12px;justify-content:center;">
+        <button type="button" onclick="document.getElementById('fileCamera').click()"
+          style="padding:10px 18px;border-radius:8px;border:1px solid #e2e8f0;background:#eff6ff;color:#1d4ed8;font-family:Sarabun,sans-serif;font-size:15px;font-weight:600;cursor:pointer;">
+          📸 ถ่ายรูป
+        </button>
+        <button type="button" onclick="document.getElementById('fileGallery').click()"
+          style="padding:10px 18px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;color:#475569;font-family:Sarabun,sans-serif;font-size:15px;font-weight:600;cursor:pointer;">
+          🖼️ แกลเลอรี่
+        </button>
+      </div>
+      <img id="imgPreview" alt="preview">
+    </div>
+    <input type="file" id="fileCamera" accept="image/*" capture="environment" style="display:none" onchange="onFile(this)">
+    <input type="file" id="fileGallery" accept="image/*" style="display:none" onchange="onFile(this)">
+  </div>
+  <div class="card">
+    <div class="card-title">ข้อมูล</div>
+    <div class="fi-group">
+      <label class="fi-label">เลขไมล์ (ตัวเลขบนหน้าปัด)</label>
+      <input class="fi" type="number" id="mileVal" placeholder="เช่น 125430" inputmode="numeric" oninput="checkReady()">
+    </div>
+    <div class="fi-group">
+      <label class="fi-label">วันที่</label>
+      <input class="fi" type="date" id="mileDate">
+    </div>
+    <div class="fi-group" style="margin-bottom:0;">
+      <label class="fi-label">หมายเหตุ (ถ้ามี)</label>
+      <input class="fi" type="text" id="mileNote" placeholder="เช่น เติมน้ำมันด้วย">
+    </div>
+  </div>
+  <button class="btn-submit" id="btnSubmit" onclick="submit()" disabled>
+    📤 บันทึกไมล์รถ
+  </button>
+</div>
+<div class="toast" id="toastEl"></div>
+<script>
+var drv = '', fileB64 = '', fileName = '';
+var drvParam = new URLSearchParams(window.location.search).get('driver') || '';
+if (drvParam) {
+  var idx = {A:1,B:2,C:3}[drvParam] || 1;
+  var btn = document.querySelector('.drv-btn:nth-child(' + idx + ')');
+  if (btn) selDrv(drvParam, btn);
+  document.getElementById('drvCard').style.display = 'none';
+}
+document.getElementById('mileDate').value = new Date().toISOString().slice(0,10);
+
+function selDrv(d, el) {
+  drv = d;
+  document.querySelectorAll('.drv-btn').forEach(function(b) { b.className = 'drv-btn'; });
+  el.className = 'drv-btn sel-' + d;
+  document.getElementById('drvBadge').textContent = d;
+  document.getElementById('headerSub').textContent = 'คนขับ ' + d + ' · ห้างหุ้นส่วนจำกัด ซูนิค';
+  checkReady();
+}
+
+function onFile(input) {
+  var file = input.files[0];
+  if (!file) return;
+  fileName = file.name;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    fileB64 = e.target.result.split(',')[1];
+    var prev = document.getElementById('imgPreview');
+    prev.src = e.target.result;
+    prev.style.display = 'block';
+    document.getElementById('uploadZone').classList.add('has-img');
+    checkReady();
+  };
+  reader.readAsDataURL(file);
+}
+
+function checkReady() {
+  // รูปภาพเป็น optional — บันทึกได้ถ้ามีคนขับและเลขไมล์
+  var mileVal = document.getElementById('mileVal').value.trim();
+  document.getElementById('btnSubmit').disabled = !(drv && mileVal);
+}
+
+function submit() {
+  var btn = document.getElementById('btnSubmit');
+  btn.disabled = true;
+  btn.textContent = '⏳ กำลังบันทึก...';
+  var mileVal = document.getElementById('mileVal').value.trim();
+  var mileDate = document.getElementById('mileDate').value;
+  var mileNote = document.getElementById('mileNote').value.trim();
+
+  // ส่งข้อมูลพื้นฐานก่อน (ไม่มีรูป)
+  var params = {
+    drv: drv,
+    mileVal: mileVal,
+    mileDate: mileDate,
+    mileNote: mileNote,
+    fileName: fileName || ''
+  };
+
+  // ถ้ามีรูป — ส่ง fileB64 แยกผ่าน POST แทน
+  if (fileB64) {
+    // ส่งแบบ POST เพื่อรองรับ base64 ขนาดใหญ่
+    fetch(ZUNIC_CONFIG.GAS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'saveMileage',
+        drv: drv,
+        mileVal: mileVal,
+        mileDate: mileDate,
+        mileNote: mileNote,
+        fileB64: fileB64,
+        fileName: fileName || ''
+      })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) { handleSuccess(mileVal, mileDate, drv); })
+    .catch(function(e) {
+      btn.disabled = false;
+      btn.textContent = '📤 บันทึกไมล์รถ';
+      toast('⚠️ เกิดข้อผิดพลาด: ' + (e.message || e));
+    });
+  } else {
+    // ไม่มีรูป — ส่งแบบ GET ปกติ
+    callGAS('saveMileage', params)
+    .then(function(r) { handleSuccess(mileVal, mileDate, drv); })
+    .catch(function(e) {
+      btn.disabled = false;
+      btn.textContent = '📤 บันทึกไมล์รถ';
+      toast('⚠️ เกิดข้อผิดพลาด: ' + (e.message || e));
+    });
+  }
+}
+
+function handleSuccess(mileVal, mileDate, drv) {
+  document.getElementById('mainContent').innerHTML =
+    '<div class="success-wrap">' +
+    '<div class="success-icon">✅</div>' +
+    '<div class="success-title">บันทึกเรียบร้อย</div>' +
+    '<div class="success-sub">คนขับ ' + drv + ' · ' + mileDate + '<br>' +
+    (mileVal ? 'ไมล์รถ: ' + parseInt(mileVal).toLocaleString() + ' กม.' : '') +
+    '</div></div>';
+}
+
+function toast(msg) {
+  var t = document.getElementById('toastEl');
+  t.textContent = msg;
+  t.classList.add('on');
+  setTimeout(function() { t.classList.remove('on'); }, 3500);
+}
+</script>
+</body>
+</html>
