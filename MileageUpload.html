@@ -27,7 +27,7 @@ body{background:var(--bg);color:var(--text);font-family:'Sarabun',sans-serif;min
 .upload-zone.has-img{border-style:solid;border-color:#16a34a;background:#f0fdf4;}
 .upload-icon{font-size:36px;margin-bottom:8px;}
 .upload-text{font-size:15px;font-weight:600;color:var(--text2);}
-.upload-sub{font-size:12px;color:var(--text2);margin-top:4px;opacity:.7;}
+.optional-tag{font-size:11px;color:#94a3b8;background:#f1f5f9;padding:2px 8px;border-radius:10px;margin-left:6px;}
 #imgPreview{width:100%;max-height:200px;object-fit:cover;border-radius:8px;display:none;margin-top:10px;}
 .fi{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;color:var(--text);font-family:'Sarabun',sans-serif;font-size:16px;transition:border-color .15s;}
 .fi:focus{outline:none;border-color:var(--accent);}
@@ -63,10 +63,10 @@ body{background:var(--bg);color:var(--text);font-family:'Sarabun',sans-serif;min
     </div>
   </div>
   <div class="card">
-    <div class="card-title">รูปถ่ายไมล์รถ</div>
+    <div class="card-title">รูปถ่ายไมล์รถ <span class="optional-tag">ไม่บังคับ</span></div>
     <div class="upload-zone" id="uploadZone">
       <div class="upload-icon">📷</div>
-      <div class="upload-text">เลือกวิธีอัพโหลด</div>
+      <div class="upload-text">เลือกวิธีอัพโหลด (ถ้ามี)</div>
       <div style="display:flex;gap:10px;margin-top:12px;justify-content:center;">
         <button type="button" onclick="document.getElementById('fileCamera').click()"
           style="padding:10px 18px;border-radius:8px;border:1px solid #e2e8f0;background:#eff6ff;color:#1d4ed8;font-family:Sarabun,sans-serif;font-size:15px;font-weight:600;cursor:pointer;">
@@ -86,7 +86,7 @@ body{background:var(--bg);color:var(--text);font-family:'Sarabun',sans-serif;min
     <div class="card-title">ข้อมูล</div>
     <div class="fi-group">
       <label class="fi-label">เลขไมล์ (ตัวเลขบนหน้าปัด)</label>
-      <input class="fi" type="number" id="mileVal" placeholder="เช่น 125430" inputmode="numeric">
+      <input class="fi" type="number" id="mileVal" placeholder="เช่น 125430" inputmode="numeric" oninput="checkReady()">
     </div>
     <div class="fi-group">
       <label class="fi-label">วันที่</label>
@@ -103,64 +103,114 @@ body{background:var(--bg);color:var(--text);font-family:'Sarabun',sans-serif;min
 </div>
 <div class="toast" id="toastEl"></div>
 <script>
-let drv = '', fileB64 = '', fileName = '';
-const drvParam = new URLSearchParams(window.location.search).get('driver') || '';
-if(drvParam) {
-  const btn = document.querySelector('.drv-btn:nth-child(' + ({A:1,B:2,C:3}[drvParam] || 1) + ')');
-  if(btn) selDrv(drvParam, btn);
-    document.getElementById('drvCard').style.display = 'none';
+var drv = '', fileB64 = '', fileName = '';
+var drvParam = new URLSearchParams(window.location.search).get('driver') || '';
+if (drvParam) {
+  var idx = {A:1,B:2,C:3}[drvParam] || 1;
+  var btn = document.querySelector('.drv-btn:nth-child(' + idx + ')');
+  if (btn) selDrv(drvParam, btn);
+  document.getElementById('drvCard').style.display = 'none';
 }
 document.getElementById('mileDate').value = new Date().toISOString().slice(0,10);
+
 function selDrv(d, el) {
   drv = d;
-  document.querySelectorAll('.drv-btn').forEach(b => b.className = 'drv-btn');
+  document.querySelectorAll('.drv-btn').forEach(function(b) { b.className = 'drv-btn'; });
   el.className = 'drv-btn sel-' + d;
   document.getElementById('drvBadge').textContent = d;
   document.getElementById('headerSub').textContent = 'คนขับ ' + d + ' · ห้างหุ้นส่วนจำกัด ซูนิค';
   checkReady();
 }
+
 function onFile(input) {
-  const file = input.files[0]; if(!file) return;
+  var file = input.files[0];
+  if (!file) return;
   fileName = file.name;
-  const reader = new FileReader();
-  reader.onload = e => {
+  var reader = new FileReader();
+  reader.onload = function(e) {
     fileB64 = e.target.result.split(',')[1];
-    const prev = document.getElementById('imgPreview');
-    prev.src = e.target.result; prev.style.display = 'block';
+    var prev = document.getElementById('imgPreview');
+    prev.src = e.target.result;
+    prev.style.display = 'block';
     document.getElementById('uploadZone').classList.add('has-img');
     checkReady();
   };
   reader.readAsDataURL(file);
 }
+
 function checkReady() {
-  document.getElementById('btnSubmit').disabled = !(drv && fileB64);
+  // รูปภาพเป็น optional — บันทึกได้ถ้ามีคนขับและเลขไมล์
+  var mileVal = document.getElementById('mileVal').value.trim();
+  document.getElementById('btnSubmit').disabled = !(drv && mileVal);
 }
-async function submit() {
-  const btn = document.getElementById('btnSubmit');
-  btn.disabled = true; btn.textContent = '⏳ กำลังบันทึก...';
-  const mileVal = document.getElementById('mileVal').value.trim();
-  const mileDate = document.getElementById('mileDate').value;
-  const mileNote = document.getElementById('mileNote').value.trim();
-  try {
-    await callGAS('saveMileage', { drv, mileVal, mileDate, mileNote, fileB64, fileName });
-    document.getElementById('mainContent').innerHTML = `
-      <div class="success-wrap">
-        <div class="success-icon">✅</div>
-        <div class="success-title">บันทึกเรียบร้อย</div>
-        <div class="success-sub">
-          คนขับ ${drv} · ${mileDate}<br>
-          ${mileVal ? 'ไมล์รถ: ' + parseInt(mileVal).toLocaleString() + ' กม.' : ''}
-        </div>
-      </div>`;
-  } catch(e) {
-    btn.disabled = false; btn.textContent = '📤 บันทึกไมล์รถ';
-    toast('⚠️ เกิดข้อผิดพลาด: ' + (e.message || e));
+
+function submit() {
+  var btn = document.getElementById('btnSubmit');
+  btn.disabled = true;
+  btn.textContent = '⏳ กำลังบันทึก...';
+  var mileVal = document.getElementById('mileVal').value.trim();
+  var mileDate = document.getElementById('mileDate').value;
+  var mileNote = document.getElementById('mileNote').value.trim();
+
+  // ส่งข้อมูลพื้นฐานก่อน (ไม่มีรูป)
+  var params = {
+    drv: drv,
+    mileVal: mileVal,
+    mileDate: mileDate,
+    mileNote: mileNote,
+    fileName: fileName || ''
+  };
+
+  // ถ้ามีรูป — ส่ง fileB64 แยกผ่าน POST แทน
+  if (fileB64) {
+    // ส่งแบบ POST เพื่อรองรับ base64 ขนาดใหญ่
+    fetch(ZUNIC_CONFIG.GAS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'saveMileage',
+        drv: drv,
+        mileVal: mileVal,
+        mileDate: mileDate,
+        mileNote: mileNote,
+        fileB64: fileB64,
+        fileName: fileName || ''
+      })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) { handleSuccess(mileVal, mileDate, drv); })
+    .catch(function(e) {
+      btn.disabled = false;
+      btn.textContent = '📤 บันทึกไมล์รถ';
+      toast('⚠️ เกิดข้อผิดพลาด: ' + (e.message || e));
+    });
+  } else {
+    // ไม่มีรูป — ส่งแบบ GET ปกติ
+    callGAS('saveMileage', params)
+    .then(function(r) { handleSuccess(mileVal, mileDate, drv); })
+    .catch(function(e) {
+      btn.disabled = false;
+      btn.textContent = '📤 บันทึกไมล์รถ';
+      toast('⚠️ เกิดข้อผิดพลาด: ' + (e.message || e));
+    });
   }
 }
+
+function handleSuccess(mileVal, mileDate, drv) {
+  document.getElementById('mainContent').innerHTML =
+    '<div class="success-wrap">' +
+    '<div class="success-icon">✅</div>' +
+    '<div class="success-title">บันทึกเรียบร้อย</div>' +
+    '<div class="success-sub">คนขับ ' + drv + ' · ' + mileDate + '<br>' +
+    (mileVal ? 'ไมล์รถ: ' + parseInt(mileVal).toLocaleString() + ' กม.' : '') +
+    '</div></div>';
+}
+
 function toast(msg) {
-  const t = document.getElementById('toastEl');
-  t.textContent = msg; t.classList.add('on');
-  setTimeout(() => t.classList.remove('on'), 3500);
+  var t = document.getElementById('toastEl');
+  t.textContent = msg;
+  t.classList.add('on');
+  setTimeout(function() { t.classList.remove('on'); }, 3500);
 }
 </script>
 </body>
