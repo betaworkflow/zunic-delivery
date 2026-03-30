@@ -1,0 +1,255 @@
+<!-- Common.html — Shared CSS + JS utilities — Light Theme -->
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ── CSS VARIABLES ── */
+:root {
+  --bg:           #f0ece3;
+  --surface:      #faf8f4;
+  --surface2:     #f5f1ea;
+  --surface3:     #ede9e0;
+  --surface4:     #e6e1d6;
+  --border:       rgba(0,0,0,.07);
+  --border2:      rgba(0,0,0,.11);
+  --border3:      rgba(0,0,0,.18);
+  --accent:       #9b6a3e;
+  --accent2:      #7d5230;
+  --accent-bg:    rgba(155,106,62,.09);
+  --green:        #1a7a4a;
+  --green2:       #156039;
+  --green-bg:     rgba(26,122,74,.08);
+  --orange:       #b85c00;
+  --red:          #c0392b;
+  --red-bg:       rgba(192,57,43,.07);
+  --yellow:       #8a6d00;
+  --blue:         #1d5fa8;
+  --purple:       #5b3fa8;
+  --text:         #1c1917;
+  --text2:        #6b6560;
+  --text3:        #a09890;
+  --mono:         'IBM Plex Mono', monospace;
+  --sans:         'Noto Sans Thai', sans-serif;
+  --r:            8px;
+  --r2:           12px;
+  --shadow-sm:    0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.05);
+  --shadow:       0 2px 8px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.06);
+  --shadow-md:    0 4px 16px rgba(0,0,0,.10), 0 2px 6px rgba(0,0,0,.06);
+  --shadow-lg:    0 12px 40px rgba(0,0,0,.14), 0 4px 12px rgba(0,0,0,.08);
+  --success-bg:      rgba(26,122,74,.07);
+  --success-border:  rgba(26,122,74,.22);
+  --fail-bg:         rgba(192,57,43,.07);
+  --fail-border:     rgba(192,57,43,.22);
+}
+
+/* ── RESET ── */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 15px;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+/* ── COMMON BUTTONS ── */
+.btn {
+  padding: 7px 14px;
+  border-radius: var(--r);
+  border: none;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent2); }
+.btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border2); }
+.btn-ghost:hover { border-color: var(--border3); color: var(--text); }
+.btn-danger { background: transparent; color: var(--red); border: 1px solid rgba(192,57,43,.25); }
+.btn-danger:hover { background: var(--red-bg); }
+
+/* ── COMMON FORM ── */
+.fi {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  padding: 6px 10px;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 13px;
+}
+.fi:focus { outline: none; border-color: var(--accent); }
+.fi::placeholder { color: var(--text3); }
+.fs {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  padding: 6px 7px;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%) translateY(70px);
+  background: var(--text);
+  color: var(--surface);
+  border-radius: var(--r);
+  padding: 10px 18px;
+  font-size: 13px;
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1);
+  z-index: 999;
+  box-shadow: var(--shadow-md);
+  white-space: nowrap;
+}
+.toast.on { transform: translateX(-50%) translateY(0); }
+
+/* ── MODAL ── */
+.modal-bd {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 400;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(2px);
+}
+.modal-bd.open { display: flex; }
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--r2);
+  padding: 20px;
+  min-width: 300px;
+  box-shadow: var(--shadow-lg);
+}
+.modal-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.modal-sub { font-size: 13px; color: var(--text2); margin-bottom: 14px; }
+.modal-footer { display: flex; gap: 8px; margin-top: 14px; }
+
+/* ── LOADING SPINNER ── */
+.spinner {
+  width: 28px; height: 28px;
+  border: 2px solid var(--border2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+  margin: 0 auto 10px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── TYPE TAG / DIR TAG ── */
+.type-tag {
+  font-size: 11px;
+  padding: 1px 7px;
+  border-radius: 4px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.dir-tag {
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  border: 1px solid var(--border2);
+  color: var(--text2);
+}
+</style>
+
+<script src="config.js"></script>
+
+<script>
+// ── TOAST ──
+function toast(msg, duration) {
+  const t = document.getElementById('toastEl');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('on');
+  clearTimeout(t._t);
+  t._t = setTimeout(function(){ t.classList.remove('on'); }, duration || 3000);
+}
+
+// ── CONFIRM DIALOG ──
+let _confirmCb = null;
+function confirmDlg(msg, onOk) {
+  _confirmCb = onOk;
+  document.getElementById('confirmMsg').textContent = msg;
+  document.getElementById('confirmOkBtn').onclick = function(){
+    const cb = _confirmCb;
+    closeConfirmDlg();
+    cb && cb();
+  };
+  document.getElementById('confirmDlg').classList.add('open');
+}
+function closeConfirmDlg() {
+  document.getElementById('confirmDlg').classList.remove('open');
+  _confirmCb = null;
+}
+
+// ── CONSTANTS (light theme colors) ──
+const TYPE_STYLES = {
+  'ส่งสินค้า': { c: '#9b6a3e', bg: 'rgba(155,106,62,.1)',  i: '📦' },
+  'วางบิล':    { c: '#b85c00', bg: 'rgba(184,92,0,.1)',    i: '🧾' },
+  'รับเช็ค':   { c: '#1a7a4a', bg: 'rgba(26,122,74,.1)',   i: '✅' },
+  'ส่งเอกสาร': { c: '#5b3fa8', bg: 'rgba(91,63,168,.1)',   i: '📄' },
+  'จ่ายบิล':   { c: '#c0392b', bg: 'rgba(192,57,43,.1)',   i: '💳' },
+  'รับของ':    { c: '#8a6d00', bg: 'rgba(138,109,0,.1)',   i: '📥' },
+  'อื่นๆ':     { c: '#6b6560', bg: 'rgba(107,101,96,.1)',  i: '➕' }
+};
+const DIR_COLORS = {
+  'เหนือ':       '#1d5fa8',
+  'ใต้':         '#b85c00',
+  'ตะวันออก':    '#8a6d00',
+  'ตะวันตก':     '#1a7a4a',
+  'กลาง':        '#5b3fa8',
+  'ต่างจังหวัด': '#6b6560',
+  'ไม่ระบุ':     '#a09890'
+};
+const DRIVER_COLORS = {
+  A: 'var(--accent)',
+  B: 'var(--green)',
+  C: 'var(--orange)'
+};
+
+// ── FORMAT HELPERS ──
+function fmtAmt(n) {
+  if (!n) return '—';
+  return Number(n).toLocaleString('th-TH');
+}
+function fmtDate(d) {
+  if (!d) return '';
+  try {
+    const dt = new Date(d);
+    return dt.toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit', year: '2-digit' });
+  } catch (e) { return d; }
+}
+</script>
+
+<!-- CONFIRM DIALOG (shared) -->
+<div class="modal-bd" id="confirmDlg">
+  <div class="modal" style="max-width:320px;">
+    <div class="modal-title" style="font-size:15px;margin-bottom:10px;" id="confirmMsg"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" style="flex:1;font-size:14px;" onclick="closeConfirmDlg()">ยกเลิก</button>
+      <button class="btn btn-primary" style="flex:1;font-size:14px;" id="confirmOkBtn">ยืนยัน</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST (shared) -->
+<div class="toast" id="toastEl"></div>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>บันทึกน้ำมัน</title>
+<script src="config.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:sans-serif;}
+body{background:#f5f5f5;padding:16px;color:#222;}
+.card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.08);margin-bottom:16px;}
+h2{font-size:18px;font-weight:700;margin-bottom:4px;}
+.sub{font-size:13px;color:#888;margin-bottom:16px;}
+label{display:block;font-size:13px;font-weight:600;margin-bottom:4px;color:#444;}
+input,select{width:100%;padding:10px 12px;border:1.5px solid #ddd;border-radius:8px;font-size:15px;margin-bottom:14px;background:#fafafa;}
+input:focus,select:focus{outline:none;border-color:#f59e0b;background:#fff;}
+.photo-box{border:2px dashed #ddd;border-radius:10px;padding:24px;text-align:center;cursor:pointer;margin-bottom:14px;color:#999;font-size:13px;}
+.photo-box.has-img{border-color:#f59e0b;color:#333;}
+#previewImg{width:100%;border-radius:8px;margin-top:10px;display:none;}
+.btn{width:100%;padding:14px;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;background:#f59e0b;color:#fff;}
+.btn:disabled{background:#ccc;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;display:none;z-index:999;}
+</style>
+</head>
+<body>
+<div class="card">
+  <h2>⛽ บันทึกน้ำมัน</h2>
+  <div class="sub" id="drvLabel">กำลังโหลด...</div>
+  <label>ปั๊มน้ำมัน</label>
+  <input id="station" placeholder="เช่น ปตท. รังสิต" type="text">
+  <label>จำนวนลิตร</label>
+  <input id="liters" type="number" step="0.01" placeholder="0.00">
+  <label>ยอดเงิน (บาท)</label>
+  <input id="amount" type="number" step="0.01" placeholder="0.00">
+  <label>เลขที่บิล</label>
+  <input id="billNo" placeholder="ไม่บังคับ" type="text">
+  <label>รูปใบเสร็จ</label>
+  <div class="photo-box" id="photoBox" onclick="document.getElementById('fileIn').click()">
+    แตะเพื่อถ่ายรูป / เลือกรูป
+    <img id="previewImg">
+  </div>
+  <input type="file" id="fileIn" accept="image/*" capture="environment" style="display:none" onchange="onPhoto(this)">
+  <button class="btn" id="btnSave" onclick="save()">บันทึก</button>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+var DRIVER = new URLSearchParams(window.location.search).get('driver') || '';
+document.getElementById('drvLabel').textContent = 'คนขับ ' + DRIVER + ' · ' + new Date().toLocaleDateString('th-TH');
+var photoBase64 = '';
+var photoMime = '';
+function onPhoto(inp) {
+  var file = inp.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var dataUrl = e.target.result;
+    photoMime = file.type;
+    photoBase64 = dataUrl.split(',')[1];
+    document.getElementById('previewImg').src = dataUrl;
+    document.getElementById('previewImg').style.display = 'block';
+    document.getElementById('photoBox').classList.add('has-img');
+    document.getElementById('photoBox').firstChild.textContent = file.name;
+  };
+  reader.readAsDataURL(file);
+}
+function toast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(function(){ t.style.display = 'none'; }, 3000);
+}
+function save() {
+  var station = document.getElementById('station').value.trim();
+  var liters = document.getElementById('liters').value;
+  var amount = document.getElementById('amount').value;
+  if (!station || !liters || !amount) { toast('⚠️ กรุณากรอกปั๊ม ลิตร และยอดเงิน'); return; }
+  var btn = document.getElementById('btnSave');
+  btn.disabled = true;
+  btn.textContent = 'กำลังบันทึก...';
+  callGAS('saveFuel', {
+    driver: DRIVER,
+    station: station,
+    liters: liters,
+    amount: amount,
+    billNo: document.getElementById('billNo').value.trim(),
+    photoBase64: photoBase64,
+    photoMime: photoMime
+  })
+    .then(function(r) {
+      btn.textContent = '✓ บันทึกแล้ว';
+      toast('✅ บันทึกน้ำมันเรียบร้อย');
+    })
+    .catch(function(err) {
+      btn.disabled = false;
+      btn.textContent = 'บันทึก';
+      toast('❌ เกิดข้อผิดพลาด: ' + err.message);
+    });
+}
+</script>
+</body>
+</html>
