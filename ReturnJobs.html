@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ── CSS VARIABLES ── */
+:root {
+  --bg:           #f0ece3;
+  --surface:      #faf8f4;
+  --surface2:     #f5f1ea;
+  --surface3:     #ede9e0;
+  --surface4:     #e6e1d6;
+  --border:       rgba(0,0,0,.07);
+  --border2:      rgba(0,0,0,.11);
+  --border3:      rgba(0,0,0,.18);
+  --accent:       #9b6a3e;
+  --accent2:      #7d5230;
+  --accent-bg:    rgba(155,106,62,.09);
+  --green:        #1a7a4a;
+  --green2:       #156039;
+  --green-bg:     rgba(26,122,74,.08);
+  --orange:       #b85c00;
+  --red:          #c0392b;
+  --red-bg:       rgba(192,57,43,.07);
+  --yellow:       #8a6d00;
+  --blue:         #1d5fa8;
+  --purple:       #5b3fa8;
+  --text:         #1c1917;
+  --text2:        #6b6560;
+  --text3:        #a09890;
+  --mono:         'IBM Plex Mono', monospace;
+  --sans:         'Noto Sans Thai', sans-serif;
+  --r:            8px;
+  --r2:           12px;
+  --shadow-sm:    0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.05);
+  --shadow:       0 2px 8px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.06);
+  --shadow-md:    0 4px 16px rgba(0,0,0,.10), 0 2px 6px rgba(0,0,0,.06);
+  --shadow-lg:    0 12px 40px rgba(0,0,0,.14), 0 4px 12px rgba(0,0,0,.08);
+  --success-bg:      rgba(26,122,74,.07);
+  --success-border:  rgba(26,122,74,.22);
+  --fail-bg:         rgba(192,57,43,.07);
+  --fail-border:     rgba(192,57,43,.22);
+}
+
+/* ── RESET ── */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 15px;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+/* ── COMMON BUTTONS ── */
+.btn {
+  padding: 7px 14px;
+  border-radius: var(--r);
+  border: none;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent2); }
+.btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border2); }
+.btn-ghost:hover { border-color: var(--border3); color: var(--text); }
+.btn-danger { background: transparent; color: var(--red); border: 1px solid rgba(192,57,43,.25); }
+.btn-danger:hover { background: var(--red-bg); }
+
+/* ── COMMON FORM ── */
+.fi {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  padding: 6px 10px;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 13px;
+}
+.fi:focus { outline: none; border-color: var(--accent); }
+.fi::placeholder { color: var(--text3); }
+.fs {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--r);
+  padding: 6px 7px;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%) translateY(70px);
+  background: var(--text);
+  color: var(--surface);
+  border-radius: var(--r);
+  padding: 10px 18px;
+  font-size: 13px;
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1);
+  z-index: 999;
+  box-shadow: var(--shadow-md);
+  white-space: nowrap;
+}
+.toast.on { transform: translateX(-50%) translateY(0); }
+
+/* ── MODAL ── */
+.modal-bd {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 400;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(2px);
+}
+.modal-bd.open { display: flex; }
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--r2);
+  padding: 20px;
+  min-width: 300px;
+  box-shadow: var(--shadow-lg);
+}
+.modal-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.modal-sub { font-size: 13px; color: var(--text2); margin-bottom: 14px; }
+.modal-footer { display: flex; gap: 8px; margin-top: 14px; }
+
+/* ── LOADING SPINNER ── */
+.spinner {
+  width: 28px; height: 28px;
+  border: 2px solid var(--border2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+  margin: 0 auto 10px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── TYPE TAG / DIR TAG ── */
+.type-tag {
+  font-size: 11px;
+  padding: 1px 7px;
+  border-radius: 4px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.dir-tag {
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  border: 1px solid var(--border2);
+  color: var(--text2);
+}
+</style>
+
+<script src="config.js"></script>
+
+<script>
+// ── TOAST ──
+function toast(msg, duration) {
+  const t = document.getElementById('toastEl');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('on');
+  clearTimeout(t._t);
+  t._t = setTimeout(function(){ t.classList.remove('on'); }, duration || 3000);
+}
+
+// ── CONFIRM DIALOG ──
+let _confirmCb = null;
+function confirmDlg(msg, onOk) {
+  _confirmCb = onOk;
+  document.getElementById('confirmMsg').textContent = msg;
+  document.getElementById('confirmOkBtn').onclick = function(){
+    const cb = _confirmCb;
+    closeConfirmDlg();
+    cb && cb();
+  };
+  document.getElementById('confirmDlg').classList.add('open');
+}
+function closeConfirmDlg() {
+  document.getElementById('confirmDlg').classList.remove('open');
+  _confirmCb = null;
+}
+
+// ── CONSTANTS (light theme colors) ──
+const TYPE_STYLES = {
+  'ส่งสินค้า': { c: '#9b6a3e', bg: 'rgba(155,106,62,.1)',  i: '📦' },
+  'วางบิล':    { c: '#b85c00', bg: 'rgba(184,92,0,.1)',    i: '🧾' },
+  'รับเช็ค':   { c: '#1a7a4a', bg: 'rgba(26,122,74,.1)',   i: '✅' },
+  'ส่งเอกสาร': { c: '#5b3fa8', bg: 'rgba(91,63,168,.1)',   i: '📄' },
+  'จ่ายบิล':   { c: '#c0392b', bg: 'rgba(192,57,43,.1)',   i: '💳' },
+  'รับของ':    { c: '#8a6d00', bg: 'rgba(138,109,0,.1)',   i: '📥' },
+  'อื่นๆ':     { c: '#6b6560', bg: 'rgba(107,101,96,.1)',  i: '➕' }
+};
+const DIR_COLORS = {
+  'เหนือ':       '#1d5fa8',
+  'ใต้':         '#b85c00',
+  'ตะวันออก':    '#8a6d00',
+  'ตะวันตก':     '#1a7a4a',
+  'กลาง':        '#5b3fa8',
+  'ต่างจังหวัด': '#6b6560',
+  'ไม่ระบุ':     '#a09890'
+};
+const DRIVER_COLORS = {
+  A: 'var(--accent)',
+  B: 'var(--green)',
+  C: 'var(--orange)'
+};
+
+// ── FORMAT HELPERS ──
+function fmtAmt(n) {
+  if (!n) return '—';
+  return Number(n).toLocaleString('th-TH');
+}
+function fmtDate(d) {
+  if (!d) return '';
+  try {
+    const dt = new Date(d);
+    return dt.toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit', year: '2-digit' });
+  } catch (e) { return d; }
+}
+</script>
+
+<!-- CONFIRM DIALOG (shared) -->
+<div class="modal-bd" id="confirmDlg">
+  <div class="modal" style="max-width:320px;">
+    <div class="modal-title" style="font-size:15px;margin-bottom:10px;" id="confirmMsg"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" style="flex:1;font-size:14px;" onclick="closeConfirmDlg()">ยกเลิก</button>
+      <button class="btn btn-primary" style="flex:1;font-size:14px;" id="confirmOkBtn">ยืนยัน</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST (shared) -->
+<div class="toast" id="toastEl"></div>
+
+<style>
+/* ════════════════════════════════════════════════
+   ReturnJobs.html — <style> block (light theme)
+   แทนที่ <style>…</style> เดิมทั้งก้อน
+   CSS Variables มาจาก Common.html แล้ว
+════════════════════════════════════════════════ */
+
+/* ── HEADER ── */
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 16px; height: 52px;
+  display: flex; align-items: center; gap: 10px;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: var(--shadow-sm);
+}
+.header-left { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.logo { font-size: 15px; font-weight: 700; letter-spacing: -.3px; }
+.logo span { color: var(--accent); }
+.page-title { font-size: 13px; font-weight: 600; color: var(--text2); }
+.header-right { display: flex; align-items: center; gap: 8px; margin-left: auto; flex-shrink: 0; }
+
+/* ── DATE NAV ── */
+.date-nav { display: flex; align-items: center; gap: 4px; }
+.date-nav-btn {
+  width: 26px; height: 26px; border-radius: 6px;
+  border: 1px solid var(--border2); background: var(--surface2);
+  color: var(--text2); font-size: 14px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .12s; line-height: 1;
+}
+.date-nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+#retDate {
+  width: 130px; font-size: 12px;
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: var(--r); padding: 4px 8px;
+  color: var(--text); font-family: var(--mono); cursor: pointer;
+}
+
+/* ── DRIVER TABS ── */
+.driver-tabs {
+  display: flex; gap: 0;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 0 16px;
+}
+.drv-tab {
+  padding: 10px 20px; font-size: 13px; font-weight: 600;
+  color: var(--text3); cursor: pointer;
+  border-bottom: 2px solid transparent; transition: all .15s;
+  display: flex; align-items: center; gap: 7px;
+}
+.drv-tab:hover { color: var(--text2); }
+.drv-tab.active-a { color: var(--accent); border-bottom-color: var(--accent); }
+.drv-tab.active-b { color: var(--green); border-bottom-color: var(--green); }
+.drv-tab.active-c { color: var(--orange); border-bottom-color: var(--orange); }
+.drv-badge {
+  font-size: 11px; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 1px 7px; font-weight: 700; font-family: var(--mono);
+}
+
+/* ── BODY LAYOUT ── */
+.main { display: flex; height: calc(100vh - 104px); }
+.job-panel {
+  flex: 1; overflow-y: auto; padding: 12px 16px;
+  display: flex; flex-direction: column; gap: 6px; background: var(--bg);
+}
+.summary-panel {
+  width: 280px; flex-shrink: 0; border-left: 1px solid var(--border);
+  overflow-y: auto; padding: 14px;
+  display: flex; flex-direction: column; gap: 10px; background: var(--surface);
+}
+
+/* ── JOB CARDS ── */
+.job-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r2); overflow: hidden;
+  transition: border-color .15s; box-shadow: var(--shadow-sm);
+}
+.job-card.done { border-color: var(--success-border); background: var(--success-bg); }
+.job-card.failed { border-color: var(--fail-border); background: var(--fail-bg); }
+.job-card-header {
+  padding: 10px 13px; display: flex; align-items: flex-start;
+  gap: 9px; cursor: pointer;
+}
+.job-card-header:hover { background: rgba(0,0,0,.02); }
+.job-order {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--surface2); border: 1px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: var(--text2);
+  flex-shrink: 0; margin-top: 1px; font-family: var(--mono);
+}
+.job-card.done .job-order { background: var(--green-bg); border-color: var(--success-border); color: var(--green); }
+.job-card.failed .job-order { background: var(--fail-bg); border-color: var(--fail-border); color: var(--red); }
+.job-info { flex: 1; min-width: 0; }
+.job-info-top { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin-bottom: 3px; }
+.job-code {
+  font-size: 11px; font-weight: 700; color: var(--accent);
+  font-family: var(--mono); background: var(--accent-bg);
+  padding: 1px 5px; border-radius: 3px;
+}
+.job-inv { font-size: 11px; color: var(--text3); font-family: var(--mono); }
+.job-name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.job-meta { font-size: 12px; color: var(--text2); }
+.job-amt {
+  font-size: 13px; font-weight: 700; color: var(--text);
+  white-space: nowrap; align-self: center;
+  margin-left: auto; font-family: var(--mono);
+}
+.job-amt small { font-size: 10px; color: var(--text3); font-weight: 400; margin-left: 2px; }
+.status-row { display: flex; gap: 6px; padding: 0 13px 10px; flex-wrap: wrap; }
+.st-btn {
+  padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 600;
+  border: 1px solid var(--border2); color: var(--text2);
+  cursor: pointer; transition: all .12s; background: var(--surface);
+}
+.st-btn:hover { border-color: var(--border3); color: var(--text); }
+.st-btn.ok { background: var(--success-bg); border-color: var(--success-border); color: var(--green); }
+.st-btn.ng { background: var(--fail-bg); border-color: var(--fail-border); color: var(--red); }
+
+/* ── DETAIL PANEL ── */
+.job-detail {
+  border-top: 1px solid var(--border); padding: 12px;
+  display: flex; flex-direction: column; gap: 10px; background: var(--surface2);
+}
+.detail-section { display: flex; flex-direction: column; gap: 5px; }
+.detail-label {
+  font-size: 10px; font-weight: 700; color: var(--text3);
+  text-transform: uppercase; letter-spacing: .7px; margin-bottom: 2px;
+}
+.result-btns { display: flex; gap: 6px; }
+.res-btn {
+  flex: 1; padding: 7px; border-radius: var(--r); font-size: 13px;
+  font-weight: 600; border: 1px solid var(--border2); color: var(--text2);
+  cursor: pointer; background: var(--surface);
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+  transition: all .12s;
+}
+.res-btn:hover { border-color: var(--border3); }
+.res-btn.active-ok { background: var(--success-bg); border-color: var(--success-border); color: var(--green); }
+.res-btn.active-ng { background: var(--fail-bg); border-color: var(--fail-border); color: var(--red); }
+.fail-reason { display: flex; flex-direction: column; gap: 6px; }
+.reason-chips { display: flex; gap: 5px; flex-wrap: wrap; }
+.reason-chip {
+  padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 500;
+  border: 1px solid var(--border2); color: var(--text2);
+  cursor: pointer; transition: all .12s; background: var(--surface);
+}
+.reason-chip:hover { border-color: var(--border3); color: var(--text); }
+.reason-chip.active { background: var(--fail-bg); border-color: var(--fail-border); color: var(--red); }
+.reschedule-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text2); }
+.check-row { display: flex; gap: 8px; }
+.check-row .fi { flex: 1; }
+.doc-checks { display: flex; flex-direction: column; gap: 6px; }
+.doc-check { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
+.doc-check input[type=checkbox] { accent-color: var(--green); width: 15px; height: 15px; }
+.time-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text2); }
+.time-row .fi { width: 100px; }
+
+/* ── SUMMARY PANEL ── */
+.sum-title {
+  font-size: 11px; font-weight: 700; color: var(--text3);
+  text-transform: uppercase; letter-spacing: .6px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--border);
+}
+.sum-stat {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 13px;
+}
+.sum-stat:last-child { border-bottom: none; }
+.sum-val { font-weight: 700; font-size: 14px; font-family: var(--mono); }
+.sum-val.green { color: var(--green); }
+.sum-val.red { color: var(--red); }
+.sum-val.yellow { color: var(--yellow); }
+.check-list { display: flex; flex-direction: column; gap: 5px; }
+.check-item {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 8px 10px; font-size: 13px;
+}
+.check-item-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
+.check-item-name { font-weight: 600; color: var(--text); font-size: 12px; }
+.check-item-inv { font-size: 11px; color: var(--text3); font-family: var(--mono); }
+.check-bank { font-size: 12px; color: var(--text2); }
+.check-date { font-size: 11px; color: var(--text3); }
+.check-amt { font-weight: 700; color: var(--green); font-size: 13px; font-family: var(--mono); }
+.cash-total {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 9px 11px;
+  display: flex; justify-content: space-between; align-items: center; font-size: 13px;
+}
+.cash-total-val { font-size: 15px; font-weight: 700; color: var(--green); font-family: var(--mono); }
+.btn-submit {
+  width: 100%; padding: 10px; border-radius: var(--r);
+  font-size: 13px; font-weight: 700;
+  background: var(--accent); color: #fff;
+  border: none; cursor: pointer; transition: all .15s; margin-top: 4px;
+}
+.btn-submit:hover { background: var(--accent2); }
+.btn-submit:disabled { opacity: .4; cursor: not-allowed; }
+.empty-state { text-align: center; padding: 60px 20px; color: var(--text3); font-size: 13px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="logo">ZU<span>NIC</span></div>
+    <div class="page-title">🌆 รับงานคืน</div>
+  </div>
+  <!-- DATE NAV -->
+  <div class="date-nav">
+    <button class="date-nav-btn" onclick="shiftRetDate(-1)" title="วันก่อน">‹</button>
+    <input type="date" id="retDate" class="fi" onchange="onRetDateChange()">
+    <button class="date-nav-btn" onclick="shiftRetDate(1)" title="วันถัดไป">›</button>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <a class="btn btn-ghost" id="jobBoardLink" href="#" style="text-decoration:none;" target="_blank">📋 Job Board</a>
+    <button class="btn" onclick="exportSummary()" title="สรุปผลวันนี้">📊 สรุปผล</button>
+    <button class="btn btn-primary" id="btnFinish" onclick="finishDay()" disabled>✓ บันทึกผลวันนี้</button>
+  </div>
+</div>
+
+<!-- DRIVER TABS -->
+<div class="driver-tabs">
+  <div class="drv-tab active-a" id="tab-A" onclick="setDriver('A',this)">
+    คนขับ O <span class="drv-badge" id="bdg-A">0/0</span>
+  </div>
+  <div class="drv-tab" id="tab-B" onclick="setDriver('B',this)">
+    คนขับ M <span class="drv-badge" id="bdg-B">0/0</span>
+  </div>
+  <div class="drv-tab" id="tab-C" onclick="setDriver('C',this)">
+    คนขับ N <span class="drv-badge" id="bdg-C">0/0</span>
+  </div>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="main">
+  <div class="job-panel" id="jobPanel">
+    <div class="claude-loading"><div class="spinner"></div>กำลังโหลดข้อมูล...</div>
+  </div>
+  <div class="summary-panel">
+    <div class="sum-title">สรุปวันนี้</div>
+    <div>
+      <div class="sum-stat"><span>✅ ส่งสำเร็จ</span><span class="sum-val green" id="sumOk">0</span></div>
+      <div class="sum-stat"><span>❌ ส่งไม่ได้</span><span class="sum-val red" id="sumFail">0</span></div>
+      <div class="sum-stat"><span>⏳ ยังไม่บันทึก</span><span class="sum-val yellow" id="sumPend">0</span></div>
+      <div class="sum-stat" style="border-top:1px solid var(--border);margin-top:4px;padding-top:10px;">
+        <span style="font-weight:600;">ยอดรวมส่งสำเร็จ</span>
+        <span class="sum-val green" id="sumAmt">0</span>
+      </div>
+    </div>
+    <div>
+      <div class="sum-title" style="margin-top:4px;">💳 เช็คที่รับกลับ</div>
+      <div class="check-list" id="checkList">
+        <div style="color:var(--text3);font-size:12px;padding:8px 0;">ยังไม่มีเช็ค</div>
+      </div>
+    </div>
+    <div>
+      <div class="sum-title">💵 เงินสดรวม</div>
+      <div class="cash-total">
+        <span style="color:var(--text2);font-size:13px;">รวมทั้งหมด</span>
+        <span class="cash-total-val" id="cashTotal">฿0</span>
+      </div>
+    </div>
+    <button class="btn-submit" id="btnFinish2" onclick="finishDay()" disabled>✓ บันทึกผลวันนี้</button>
+  </div>
+</div>
+
+<!-- FINISH MODAL -->
+<div class="modal-bd" id="finishMd">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-title">✅ บันทึกผลวันนี้</div>
+    <div class="modal-sub" id="finishSub"></div>
+    <div id="finishBody" style="display:flex;flex-direction:column;gap:8px;font-size:13px;"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" style="flex:1;" onclick="closeFinishMd()">ยกเลิก</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="confirmFinish()">✓ ยืนยันบันทึก</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+// ── ReturnJobsJS.html — รับงานคืน JavaScript ─────────────────────────────────
+
+// ── STATE ──
+let schedule = { A: [], B: [], C: [] };
+let results = {};
+let currentDriver = 'A';
+let expandedId = null;
+
+// ── DATE NAV HELPERS ──
+function todayISO() {
+  const d = new Date();
+  return d.getFullYear() + '-' +
+    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    String(d.getDate()).padStart(2, '0');
+}
+
+function shiftRetDate(delta) {
+  const input = document.getElementById('retDate');
+  const d = new Date(input.value || todayISO());
+  d.setDate(d.getDate() + delta);
+  input.value = d.getFullYear() + '-' +
+    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    String(d.getDate()).padStart(2, '0');
+  onRetDateChange();
+}
+
+async function onRetDateChange() {
+  const date = document.getElementById('retDate').value;
+  if (!date) return;
+
+  // รีเซ็ต state
+  schedule = { A: [], B: [], C: [] };
+  results = {};
+  expandedId = null;
+  currentDriver = 'A';
+
+  // รีเซ็ต driver tabs
+  document.querySelectorAll('.drv-tab').forEach(function(t) { t.className = 'drv-tab'; });
+  document.getElementById('tab-A').classList.add('active-a');
+
+  document.getElementById('jobPanel').innerHTML =
+    '<div class="claude-loading"><div class="spinner"></div>กำลังโหลดข้อมูล...</div>';
+
+  try {
+    const data = await callGAS('getConfirmedScheduleByDate', { date: date });
+    if (!data) { toast('ไม่สามารถโหลดข้อมูลได้'); render(); return; }
+    schedule = data.schedule || { A: [], B: [], C: [] };
+  } catch (e) {
+    toast('⚠️ โหลดข้อมูลไม่สำเร็จ: ' + e.message);
+  }
+
+  render();
+  updateSummary();
+  updateBadges();
+}
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', async function(){
+  // ตั้งค่า date picker เป็นวันนี้
+  const today = todayISO();
+  document.getElementById('retDate').value = today;
+
+  // Job Board link
+  document.getElementById('jobBoardLink').href = ZUNIC_CONFIG.BASE_URL + '/JobBoard.html';
+
+  // Load data (วันนี้ใช้ getConfirmedSchedule เพื่อดึง results ที่บันทึกไว้ด้วย)
+  try {
+    const data = await callGAS('getConfirmedSchedule');
+    if (!data) { toast('ไม่สามารถโหลดข้อมูลได้'); return; }
+    schedule = data.schedule || { A: [], B: [], C: [] };
+
+    // โหลดผลที่บันทึกไว้แล้ว
+    if (data.results) {
+      Object.entries(data.results).forEach(function(entry){
+        var jobId = entry[0];
+        var r = entry[1];
+        results[jobId] = {
+          status: r.status || null,
+          failReason: r.failReason || '',
+          reschedDate: r.reschedDate || '',
+          time: r.time || '',
+          docs: {
+            invoice: r.docsInvoice || false,
+            bill: r.docsBill || false,
+            other: r.docsOther || false
+          },
+          check: {
+            no: r.checkNo || '',
+            bank: r.checkBank || '',
+            date: r.checkDate || '',
+            amt: r.checkAmt || 0
+          },
+          cash: r.cash || 0,
+          note: ''
+        };
+      });
+    }
+  } catch (e) {
+    console.error('Load error:', e);
+    toast('⚠️ โหลดข้อมูลไม่สำเร็จ: ' + e.message);
+  }
+
+  render();
+  updateSummary();
+  updateBadges();
+});
+
+// ── DRIVER TAB ──
+function setDriver(d, el) {
+  currentDriver = d;
+  document.querySelectorAll('.drv-tab').forEach(function(t){ return t.className = 'drv-tab'; });
+  el.classList.add('active-' + d.toLowerCase());
+  expandedId = null;
+  render();
+}
+
+// ── RENDER ──
+function render() {
+  const jobs = schedule[currentDriver] || [];
+  const panel = document.getElementById('jobPanel');
+  if (!jobs.length) {
+    panel.innerHTML = '<div class="empty-state">คนขับ ' + currentDriver + ' ไม่มีงานในวันที่นี้</div>';
+    return;
+  }
+  panel.innerHTML = jobs.map(function(j, i){ return jobCardH(j, i + 1); }).join('');
+}
+
+function jobCardH(j, order) {
+  const r = results[j.id] || {};
+  const t = TYPE_STYLES[j.type] || TYPE_STYLES['อื่นๆ'];
+  const statusCls = r.status === 'ok' ? 'done' : r.status === 'fail' ? 'failed' : '';
+  const isOpen = expandedId === j.id;
+
+  return `<div class="job-card ${statusCls}" id="jc-${j.id}">
+    <div class="job-card-header" onclick="toggleExpand('${j.id}')">
+      <div class="job-order">${r.status === 'ok' ? '✓' : r.status === 'fail' ? '✕' : order}</div>
+      <div class="job-info">
+        <div class="job-info-top">
+          <span class="job-code-r">${j.code}</span>
+          <span class="job-inv-r">${j.inv}</span>
+          <span class="type-tag" style="color:${t.c};background:${t.bg}">${j.type}</span>
+          ${r.status === 'ok' ? `<span style="font-size:11px;color:var(--green);">✅ ส่งสำเร็จ${r.time ? ' · ' + r.time : ''}</span>` : ''}
+          ${r.status === 'fail' ? `<span style="font-size:11px;color:var(--red);">❌ ${r.failReason || 'ส่งไม่ได้'}</span>` : ''}
+        </div>
+        <div class="job-name-r">${j.name}</div>
+        <div class="job-meta-r">📍 ${j.area || '—'} &nbsp;·&nbsp; ${j.dir || '—'}</div>
+      </div>
+      <div class="job-amt-r">${j.amt ? fmtAmt(j.amt) : '—'}<small>฿</small></div>
+    </div>
+    ${isOpen ? detailH(j, r) : ''}
+  </div>`;
+}
+
+function detailH(j, r) {
+  const isCheck = j.type === 'รับเช็ค';
+  const isBill = j.type === 'วางบิล';
+
+  return `<div class="job-detail">
+    <div class="detail-section">
+      <div class="detail-label">ผลการส่ง</div>
+      <div class="result-btns">
+        <button class="res-btn ${r.status === 'ok' ? 'active-ok' : ''}" onclick="setStatus('${j.id}','ok')">✅ ส่งสำเร็จ</button>
+        <button class="res-btn ${r.status === 'fail' ? 'active-ng' : ''}" onclick="setStatus('${j.id}','fail')">❌ ส่งไม่ได้</button>
+      </div>
+    </div>
+
+    ${r.status === 'fail' ? `
+    <div class="detail-section">
+      <div class="detail-label">สาเหตุ</div>
+      <div class="reason-chips">
+        ${['ลูกค้าไม่อยู่', 'ปิดทำการ', 'นัดใหม่', 'รอเอกสาร', 'อื่นๆ'].map(function(reason){ return
+          `<div class="reason-chip ${r.failReason === reason ? 'active' : ''}" onclick="setReason('${j.id}','${reason}')">${reason}</div>`
+        ; }).join('')}
+      </div>
+      <div class="reschedule-row" style="margin-top:8px;">
+        <span style="white-space:nowrap;">นัดใหม่วันที่:</span>
+        <input class="fi" type="date" style="width:160px;" value="${r.reschedDate || ''}"
+          onchange="setField('${j.id}','reschedDate',this.value)">
+      </div>
+    </div>` : ''}
+
+    ${r.status === 'ok' ? `
+    <div class="detail-section">
+      <div class="detail-label">เวลาที่ส่ง</div>
+      <div class="time-row">
+        <input class="fi" type="time" style="width:110px;" value="${r.time || ''}"
+          onchange="setField('${j.id}','time',this.value)">
+        <span style="font-size:12px;color:var(--text3);">ถ้าไม่กรอก = ใช้เวลาปัจจุบัน</span>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-label">เอกสารรับกลับ</div>
+      <div class="doc-checks">
+        ${j.type === 'ส่งสินค้า' ? `
+        <label class="doc-check">
+          <input type="checkbox" ${(r.docs || {}).invoice ? 'checked' : ''} onchange="setDoc('${j.id}','invoice',this.checked)">
+          ใบกำกับภาษี (เซ็นรับแล้ว)
+        </label>` : ''}
+        ${isBill ? `
+        <label class="doc-check">
+          <input type="checkbox" ${(r.docs || {}).bill ? 'checked' : ''} onchange="setDoc('${j.id}','bill',this.checked)">
+          ใบวางบิลตอบรับ
+        </label>` : ''}
+        <label class="doc-check">
+          <input type="checkbox" ${(r.docs || {}).other ? 'checked' : ''} onchange="setDoc('${j.id}','other',this.checked)">
+          อื่นๆ
+        </label>
+      </div>
+    </div>
+
+    ${isCheck ? `
+    <div class="detail-section">
+      <div class="detail-label">ข้อมูลเช็ค</div>
+      <div class="check-row">
+        <input class="fi" placeholder="เลขที่เช็ค" value="${(r.check || {}).no || ''}"
+          onchange="setCheckField('${j.id}','no',this.value)">
+        <input class="fi" placeholder="ธนาคาร" value="${(r.check || {}).bank || ''}"
+          onchange="setCheckField('${j.id}','bank',this.value)" style="max-width:120px;">
+      </div>
+      <div class="check-row">
+        <input class="fi" type="date" value="${(r.check || {}).date || ''}"
+          onchange="setCheckField('${j.id}','date',this.value)">
+        <input class="fi" type="number" placeholder="จำนวนเงิน" value="${(r.check || {}).amt || ''}"
+          onchange="setCheckField('${j.id}','amt',this.value)" style="max-width:140px;">
+      </div>
+    </div>` : ''}
+
+    <div class="detail-section">
+      <div class="detail-label">เงินสดรับ (ถ้ามี)</div>
+      <input class="fi" type="number" placeholder="0" style="max-width:150px;"
+        value="${r.cash || ''}" onchange="setField('${j.id}','cash',+this.value)">
+    </div>` : ''}
+
+    <div class="detail-section">
+      <div class="detail-label">หมายเหตุ</div>
+      <input class="fi" placeholder="หมายเหตุเพิ่มเติม" value="${r.note || ''}"
+        onchange="setField('${j.id}','note',this.value)">
+    </div>
+  </div>`;
+}
+
+// ── ACTIONS ──
+function toggleExpand(id) {
+  expandedId = expandedId === id ? null : id;
+  render();
+}
+
+function setStatus(id, status) {
+  if (!results[id]) results[id] = {};
+  results[id].status = status;
+  if (status === 'ok' && !results[id].time) {
+    results[id].time = new Date().toTimeString().slice(0, 5);
+  }
+  updateSummary();
+  updateBadges();
+  renderCard(id);
+}
+
+function setReason(id, reason) {
+  if (!results[id]) results[id] = {};
+  results[id].failReason = reason;
+  renderCard(id);
+}
+
+function setField(id, key, val) {
+  if (!results[id]) results[id] = {};
+  results[id][key] = val;
+  if (key === 'cash') updateSummary();
+}
+
+function setDoc(id, key, val) {
+  if (!results[id]) results[id] = {};
+  if (!results[id].docs) results[id].docs = {};
+  results[id].docs[key] = val;
+}
+
+function setCheckField(id, key, val) {
+  if (!results[id]) results[id] = {};
+  if (!results[id].check) results[id].check = {};
+  results[id].check[key] = val;
+  updateSummary();
+}
+
+function renderCard(id) {
+  const jobs = schedule[currentDriver] || [];
+  const j = jobs.find(function(x){ return x.id === id; });
+  if (!j) return;
+  const order = jobs.indexOf(j) + 1;
+  const el = document.getElementById('jc-' + id);
+  if (el) el.outerHTML = jobCardH(j, order);
+  updateSummary();
+}
+
+// ── SUMMARY ──
+function updateSummary() {
+  const allJobs = Object.values(schedule).flat();
+  let ok = 0, fail = 0, pend = 0, amt = 0;
+  allJobs.forEach(function(j){
+    const r = results[j.id] || {};
+    if (r.status === 'ok') { ok++; amt += (j.amt || 0); }
+    else if (r.status === 'fail') fail++;
+    else pend++;
+  });
+  document.getElementById('sumOk').textContent = ok;
+  document.getElementById('sumFail').textContent = fail;
+  document.getElementById('sumPend').textContent = pend;
+  document.getElementById('sumAmt').textContent = '฿' + fmtAmt(amt);
+
+  // checks
+  const checks = allJobs.filter(function(j){ return j.type === 'รับเช็ค' && results[j.id]?.status === 'ok'; });
+  const checkList = document.getElementById('checkList');
+  if (checks.length === 0) {
+    checkList.innerHTML = '<div style="color:var(--text3);font-size:12px;padding:8px 0;">ยังไม่มีเช็ค</div>';
+  } else {
+    checkList.innerHTML = checks.map(function(j){
+      const chk = results[j.id]?.check || {};
+      return `<div class="check-item">
+        <div class="check-item-top">
+          <span class="check-item-name">${j.name.length > 18 ? j.name.slice(0, 18) + '…' : j.name}</span>
+          <span class="check-amt">${chk.amt ? '฿' + fmtAmt(chk.amt) : '฿' + fmtAmt(j.amt)}</span>
+        </div>
+        <div class="check-bank">${chk.bank || '—'} · ${chk.no || 'ยังไม่ระบุเลข'}</div>
+        <div class="check-date">${chk.date || '—'}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // cash
+  const cash = allJobs.reduce(function(s, j){ return s + (results[j.id]?.cash || 0); }, 0);
+  document.getElementById('cashTotal').textContent = '฿' + fmtAmt(cash);
+
+  // enable finish button
+  const allDone = pend === 0 && allJobs.length > 0;
+  document.getElementById('btnFinish').disabled = !allDone;
+  document.getElementById('btnFinish2').disabled = !allDone;
+}
+
+function updateBadges() {
+  ['A', 'B', 'C'].forEach(function(d){
+    const jobs = schedule[d] || [];
+    const done = jobs.filter(function(j){ return results[j.id]?.status; }).length;
+    document.getElementById('bdg-' + d).textContent = done + '/' + jobs.length;
+  });
+}
+
+// ── FINISH DAY ──
+function finishDay() {
+  const allJobs = Object.values(schedule).flat();
+  const failed = allJobs.filter(function(j){ return results[j.id]?.status === 'fail'; });
+  const ok = allJobs.filter(function(j){ return results[j.id]?.status === 'ok'; });
+  const pend = allJobs.filter(function(j){ return !results[j.id]?.status; });
+
+  let body = '<div style="display:flex;flex-direction:column;gap:6px;">';
+  body += `<div style="padding:8px 12px;background:rgba(53,224,170,.08);border:1px solid rgba(53,224,170,.25);border-radius:6px;">
+    ✅ ส่งสำเร็จ ${ok.length} รายการ</div>`;
+  if (failed.length) body += `<div style="padding:8px 12px;background:rgba(255,107,107,.08);border:1px solid rgba(255,107,107,.25);border-radius:6px;">
+    ❌ ส่งไม่ได้ ${failed.length} รายการ -> จะวนกลับ Job Board พรุ่งนี้</div>`;
+  if (pend.length) body += `<div style="padding:8px 12px;background:rgba(251,196,74,.08);border:1px solid rgba(251,196,74,.25);border-radius:6px;">
+    ⚠️ ยังไม่ได้บันทึก ${pend.length} รายการ</div>`;
+  body += '</div>';
+
+  document.getElementById('finishSub').textContent = 'ยืนยันบันทึกผลทั้งหมด ' + allJobs.length + ' รายการ';
+  document.getElementById('finishBody').innerHTML = body;
+  document.getElementById('finishMd').classList.add('open');
+}
+
+function closeFinishMd() { document.getElementById('finishMd').classList.remove('open'); }
+
+async function confirmFinish() {
+  closeFinishMd();
+
+  const allJobs = Object.values(schedule).flat();
+  const returnData = allJobs.map(function(j){
+    const r = results[j.id] || {};
+    return {
+      jobId: j.id,
+      status: r.status || '',
+      failReason: r.failReason || '',
+      reschedDate: r.reschedDate || '',
+      time: r.time || '',
+      docsInvoice: (r.docs || {}).invoice || false,
+      docsBill: (r.docs || {}).bill || false,
+      docsOther: (r.docs || {}).other || false,
+      checkNo: (r.check || {}).no || '',
+      checkBank: (r.check || {}).bank || '',
+      checkDate: (r.check || {}).date || '',
+      checkAmt: Number((r.check || {}).amt) || 0,
+      cash: r.cash || 0,
+      note: r.note || ''
+    };
+  });
+
+  try {
+    await callGAS('saveReturnResults', { data: returnData });
+    // บันทึกประวัติงานลง sheet 'ประวัติงาน'
+    await callGAS('appendToHistory', { data: returnData });
+    toast('✅ บันทึกผลวันนี้เรียบร้อย — งานที่ส่งไม่ได้จะวนกลับ Job Board พรุ่งนี้');
+  } catch (e) {
+    toast('⚠️ บันทึกไม่สำเร็จ: ' + e.message);
+  }
+}
+
+function exportSummary() {
+  const allJobs = Object.values(schedule).flat();
+  const lines = ['คนขับ,รหัสลูกค้า,ชื่อลูกค้า,ประเภท,ยอด,ผล,สาเหตุ,เวลา,เช็คเลขที่,เช็คธนาคาร,เงินสด'];
+  allJobs.forEach(function(j){
+    const r = results[j.id] || {};
+    const d = Object.entries(schedule).find(function([drv, arr]){ return arr.some(function(x){ return x.id === j.id; }); })?.[0] || '';
+    lines.push([d, j.code, j.name, j.type, j.amt, r.status || 'ยังไม่บันทึก',
+      r.failReason || '', r.time || '', (r.check || {}).no || '',
+      (r.check || {}).bank || '', r.cash || 0].join(','));
+  });
+  const blob = new Blob(['\ufeff' + lines.join(' | ')], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'รับงานคืน_' + (document.getElementById('retDate').value || todayISO()) + '.csv';
+  a.click();
+  toast('📊 Export CSV แล้ว');
+}
+
+</script>
+
+</body>
+</html>

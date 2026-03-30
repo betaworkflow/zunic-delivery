@@ -1,0 +1,1887 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ซูนิค — Job Board v5</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<style>
+:root {
+  --bg:#f0ece3; --surface:#faf8f4; --surface2:#f5f1ea; --surface3:#ede9e0;
+  --border:rgba(0,0,0,.08); --border2:rgba(0,0,0,.13); --border3:rgba(0,0,0,.20);
+  --accent:#9b6a3e; --accent2:#7d5230;
+  --green:#1a7a4a; --green2:#156039;
+  --orange:#b85c00; --red:#c0392b; --yellow:#8a6d00;
+  --text:#1c1917; --text2:#6b6560; --text3:#a09890;
+  --mono:'IBM Plex Mono',monospace; --sans:'Noto Sans Thai',sans-serif;
+  --h:64px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;overflow:hidden;display:flex;flex-direction:column;}
+.header{height:var(--h);background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;justify-content:space-between;z-index:100;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-mark{width:38px;height:38px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700;font-size:13px;color:#fff;}
+.logo-text{font-size:18px;font-weight:800;letter-spacing:-.3px;}
+.logo-sub{font-size:12px;color:var(--text3);font-family:var(--mono);margin-top:1px;}
+.search-wrap{position:relative;}
+.search-input{width:280px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 12px 8px 36px;color:var(--text);font-family:var(--sans);font-size:14px;transition:all .15s;}
+.search-input:focus{outline:none;border-color:var(--accent);width:320px;background:var(--surface);}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none;}
+.search-results{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface);border:1px solid var(--border2);border-radius:8px;max-height:260px;overflow-y:auto;z-index:300;display:none;box-shadow:0 8px 32px rgba(0,0,0,.12);}
+.search-results.open{display:block;}
+.sri{padding:9px 12px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);}
+.sri:hover,.sri.hi{background:var(--surface2);}
+.sri:last-child{border-bottom:none;}
+.header-right{display:flex;align-items:center;gap:8px;}
+.date-badge{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 14px;font-family:var(--mono);font-size:13px;color:var(--text2);}
+.btn{padding:8px 16px;border-radius:8px;border:none;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:5px;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:hover{background:var(--accent2);}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border2);}
+.btn-ghost:hover{border-color:var(--border3);color:var(--text);}
+.btn-danger{background:transparent;color:var(--red);border:1px solid rgba(192,57,43,.3);}
+.btn-danger:hover{background:rgba(192,57,43,.07);}
+.btn-route{background:var(--accent);color:#fff;font-size:15px;padding:9px 22px;border-radius:10px;border:none;font-family:var(--sans);font-weight:700;cursor:pointer;transition:all .18s;box-shadow:0 2px 8px rgba(155,106,62,.3);display:flex;align-items:center;gap:6px;}
+.btn-route:hover{background:var(--accent2);box-shadow:0 4px 14px rgba(155,106,62,.4);}
+.app{display:flex;flex:1;overflow:hidden;min-height:0;}
+.left-pane{display:flex;flex-direction:column;overflow:hidden;min-width:340px;}
+.resizer{width:5px;background:var(--border2);cursor:col-resize;flex-shrink:0;transition:background .15s;position:relative;z-index:10;}
+.resizer:hover,.resizer.dragging{background:var(--accent);}
+.right-pane{display:flex;flex-direction:column;overflow:hidden;min-width:300px;}
+.main-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface);}
+.main-tab{padding:11px 20px;font-size:15px;font-weight:600;color:var(--text2);cursor:pointer;border:none;background:transparent;border-bottom:2px solid transparent;transition:all .15s;display:flex;align-items:center;gap:6px;font-family:var(--sans);}
+.main-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.main-tab:hover:not(.active){color:var(--text);}
+.tab-badge{background:var(--surface2);border-radius:20px;padding:2px 8px;font-size:12px;font-family:var(--mono);}
+.main-tab.active .tab-badge{background:rgba(155,106,62,.12);color:var(--accent);}
+.pane-header{padding:10px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.pane-title{font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text2);}
+.count-pill{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:2px 10px;font-family:var(--mono);font-size:12px;color:var(--text2);}
+.subtabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;}
+.subtab{padding:9px 16px;font-size:14px;font-weight:500;color:var(--text2);cursor:pointer;border:none;background:transparent;border-bottom:2px solid transparent;transition:all .12s;display:flex;align-items:center;gap:5px;font-family:var(--sans);}
+.subtab.active{color:var(--text);border-bottom-color:var(--accent);}
+.subtab:hover:not(.active){color:var(--text);}
+.toolbar{padding:8px 14px;display:flex;gap:6px;align-items:center;border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;background:var(--surface);}
+.filter-chip{padding:5px 12px;border-radius:6px;font-size:13px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;transition:all .12s;font-family:var(--sans);}
+.filter-chip.active{background:rgba(155,106,62,.1);border-color:var(--accent);color:var(--accent);}
+.filter-chip:hover:not(.active){border-color:var(--border3);color:var(--text);}
+.dir-chip{padding:4px 10px;border-radius:6px;font-size:12px;border:1px solid var(--border2);background:transparent;cursor:pointer;white-space:nowrap;transition:all .12s;font-family:var(--sans);}
+.dir-chip.active{background:rgba(0,0,0,.06);border-color:var(--border3) !important;color:var(--text) !important;font-weight:600;}
+.dir-chip:hover:not(.active){opacity:.85;}
+.toolbar-sep{flex:1;}
+.sort-label{font-size:12px;color:var(--text2);font-family:var(--mono);}
+.sort-select{background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:5px 8px;color:var(--text);font-family:var(--sans);font-size:13px;cursor:pointer;}
+.sort-select:focus{outline:none;border-color:var(--accent);}
+.select-all-btn{padding:5px 11px;border-radius:6px;font-size:13px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;font-family:var(--sans);transition:all .12s;white-space:nowrap;}
+.select-all-btn:hover{color:var(--accent);border-color:var(--accent);}
+.job-scroll{overflow-y:auto;flex:1;}
+.job-scroll.cf-row-item{padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--border);font-size:13px;}
+.cf-row-item:last-child{border-bottom:none;}
+::-webkit-scrollbar{width:4px;}
+.job-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.section-label{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;padding:10px 18px 5px;display:flex;align-items:center;gap:6px;}
+.job-item{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:10px;cursor:pointer;transition:background .1s;position:relative;}
+.job-item:hover{background:var(--surface2);}
+.job-item:hover .job-actions{opacity:1;}
+.job-item.selected{background:rgba(155,106,62,.06);border-left:3px solid var(--accent);padding-left:13px;}
+.job-item.in-schedule{opacity:.38;}
+.job-item.in-schedule::after{content:'✓ ในตารางแล้ว';position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--green);font-family:var(--mono);}
+.job-item.flash{background:rgba(155,106,62,.15)!important;transition:background .7s!important;}
+.job-cb{margin-top:3px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;width:16px;height:16px;}
+.job-dot{width:9px;height:9px;border-radius:50%;margin-top:5px;flex-shrink:0;}
+.job-main{flex:1;min-width:0;}
+.job-top{display:flex;align-items:center;gap:5px;margin-bottom:4px;flex-wrap:wrap;}
+.job-code{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--accent);background:rgba(155,106,62,.1);padding:1px 7px;border-radius:3px;}
+.job-inv{font-family:var(--mono);font-size:11px;color:var(--text2);}
+.type-tag{font-size:12px;padding:2px 8px;border-radius:4px;font-weight:600;white-space:nowrap;cursor:pointer;}
+.type-tag:hover{filter:brightness(.92);}
+.dir-tag{font-size:11px;padding:1px 7px;border-radius:3px;border:1px solid var(--border2);color:var(--text2);}
+.job-name{font-size:15px;font-weight:600;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.job-meta{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);flex-wrap:wrap;}
+.note-tag{color:var(--orange);}
+.urgent-tag{color:var(--red);font-weight:700;}
+.job-actions{position:absolute;right:90px;top:50%;transform:translateY(-50%);display:flex;gap:3px;opacity:0;transition:opacity .15s;}
+.job-item.in-schedule .job-actions{display:none;}
+.act-btn{padding:4px 9px;border-radius:5px;font-size:12px;border:1px solid var(--border2);background:var(--surface);color:var(--text2);cursor:pointer;font-family:var(--sans);transition:all .12s;white-space:nowrap;}
+.act-btn:hover{border-color:var(--border3);color:var(--text);}
+.act-btn.pickup:hover{border-color:var(--green);color:var(--green);background:rgba(26,122,74,.07);}
+.act-btn.del:hover{border-color:var(--red);color:var(--red);background:rgba(192,57,43,.07);}
+.act-btn.qa{font-weight:800;font-size:11px;padding:4px 8px;}
+.act-btn.qa-a:hover{border-color:var(--accent);color:var(--accent);background:rgba(155,106,62,.1);}
+.act-btn.qa-b:hover{border-color:var(--green);color:var(--green);background:rgba(26,122,74,.08);}
+.act-btn.qa-c:hover{border-color:var(--orange);color:var(--orange);background:rgba(184,92,0,.08);}
+.job-amount{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--text);flex-shrink:0;text-align:right;min-width:72px;}
+.job-amount small{display:block;font-size:10px;color:var(--text2);font-weight:400;}
+.pickup-item{padding:13px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.pu-dot{width:9px;height:9px;border-radius:50%;background:var(--orange);flex-shrink:0;}
+.pickup-item.done-item .pu-dot{background:var(--green);}
+.pickup-item.done-item .pu-name{text-decoration:line-through;color:var(--text2);}
+.pu-main{flex:1;}
+.pu-name{font-size:15px;font-weight:600;margin-bottom:3px;}
+.pu-meta{font-size:12px;color:var(--text2);display:flex;gap:10px;flex-wrap:wrap;}
+.pu-done-btn{padding:6px 14px;border-radius:7px;background:var(--green2);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:all .15s;white-space:nowrap;}
+.pu-done-btn:hover{background:var(--green);}
+.pu-cancel-btn{padding:5px 10px;border-radius:6px;background:transparent;border:1px solid rgba(192,57,43,.35);color:var(--red);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .15s;white-space:nowrap;}
+.pu-cancel-btn:hover{background:rgba(192,57,43,.07);}
+.pu-restore-btn{padding:5px 10px;border-radius:6px;background:transparent;border:1px solid var(--border2);color:var(--text2);font-size:12px;cursor:pointer;font-family:var(--sans);transition:all .15s;white-space:nowrap;}
+.pu-restore-btn:hover{border-color:var(--accent);color:var(--accent);}
+.driver-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;}
+.driver-tab{flex:1;padding:10px 4px;text-align:center;cursor:pointer;border:none;background:transparent;color:var(--text2);border-bottom:3px solid transparent;transition:all .15s;font-family:var(--sans);display:flex;flex-direction:column;align-items:center;gap:3px;}
+.d-av{width:30px;height:30px;border-radius:7px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;transition:all .15s;}
+.driver-tab.active .d-av{background:var(--surface3);border-color:var(--border2);}
+.d-a.active .d-av{border-color:var(--accent);color:var(--accent);}
+.d-b.active .d-av{border-color:var(--green);color:var(--green);}
+.d-c.active .d-av{border-color:var(--orange);color:var(--orange);}
+.d-lbl{font-family:var(--mono);font-size:11px;color:var(--text2);}
+.driver-tab.active .d-lbl{color:var(--text);}
+.add-sel-btn{margin:8px 12px;padding:11px;border-radius:8px;background:rgba(155,106,62,.07);border:1px dashed rgba(155,106,62,.35);color:var(--accent);font-size:14px;font-weight:700;cursor:pointer;transition:all .15s;font-family:var(--sans);}
+.add-sel-btn:hover:not(:disabled){background:rgba(155,106,62,.14);border-style:solid;}
+.add-sel-btn:disabled{opacity:.2;cursor:default;}
+.driver-body{overflow-y:auto;flex:1;padding:10px;}
+.driver-body::-webkit-scrollbar{width:3px;}
+.driver-body::-webkit-scrollbar-thumb{background:var(--border2);}
+.stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px;}
+.stat-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 6px;text-align:center;}
+.stat-val{font-family:var(--mono);font-size:16px;font-weight:600;}
+.stat-label{font-size:11px;color:var(--text2);margin-top:2px;}
+.sched-item{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:10px 12px;margin-bottom:6px;display:flex;align-items:flex-start;gap:8px;transition:all .15s;cursor:grab;user-select:none;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+.sched-item:hover{border-color:var(--border2);box-shadow:0 2px 6px rgba(0,0,0,.08);}
+.sched-item.drag-over{border-color:var(--accent);background:rgba(155,106,62,.05);}
+.sched-item.drag-src{opacity:.3;border-style:dashed;}
+.sched-num{width:24px;height:24px;border-radius:5px;background:var(--surface2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--text2);flex-shrink:0;font-weight:600;}
+.sched-main{flex:1;min-width:0;}
+.sched-name{font-size:13px;font-weight:700;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sched-meta{font-size:11px;color:var(--text2);display:flex;gap:5px;flex-wrap:wrap;align-items:center;}
+.sched-amt{font-family:var(--mono);font-size:12px;color:var(--text2);margin-top:3px;}
+.sched-rm{width:22px;height:22px;border-radius:4px;background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .12s;flex-shrink:0;}
+.sched-rm:hover{background:rgba(192,57,43,.1);color:var(--red);}
+.empty-sched{text-align:center;padding:32px 12px;color:var(--text2);font-size:13px;line-height:2.3;}
+.empty-icon{font-size:32px;margin-bottom:8px;opacity:.35;}
+.action-bar{padding:10px 14px;border-top:1px solid var(--border);background:var(--surface);flex-shrink:0;}
+.action-summary{font-size:12px;color:var(--text2);margin-bottom:8px;font-family:var(--mono);display:flex;gap:14px;flex-wrap:wrap;}
+.action-buttons{display:flex;gap:8px;flex-wrap:wrap;}
+.warn-badge{background:rgba(192,57,43,.08);border:1px solid rgba(192,57,43,.22);color:var(--red);border-radius:6px;padding:6px 10px;font-size:12px;margin-bottom:8px;display:none;}
+.warn-badge.on{display:block;}
+.custom-form{margin:0 12px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:12px;display:none;flex-shrink:0;}.custom-form.open{display:flex;flex-direction:column;}
+.fr{display:flex;gap:5px;margin-bottom:6px;flex-wrap:wrap;}
+.fi{flex:1;background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:7px 10px;color:var(--text);font-family:var(--sans);font-size:14px;}
+.fi:focus{outline:none;border-color:var(--accent);}
+.fi::placeholder{color:var(--text3);}
+.fs{background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:7px 7px;color:var(--text);font-family:var(--sans);font-size:14px;cursor:pointer;}
+.backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;display:none;align-items:center;justify-content:center;backdrop-filter:blur(2px);}
+.backdrop.open{display:flex;}
+.popup{background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:24px;width:500px;max-height:84vh;overflow-y:auto;box-shadow:0 12px 40px rgba(0,0,0,.14);}
+.popup-title{font-size:18px;font-weight:800;margin-bottom:4px;}
+.popup-sub{font-size:13px;color:var(--text2);margin-bottom:20px;}
+.psec{margin-bottom:18px;}
+.psec-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);margin-bottom:9px;padding-bottom:5px;border-bottom:1px solid var(--border);}
+.dchk-row{display:flex;gap:8px;}
+.dchk{flex:1;padding:12px 8px;border-radius:9px;border:1px solid var(--border2);cursor:pointer;transition:all .15s;text-align:center;font-weight:700;font-size:16px;color:var(--text2);}
+.dchk:hover{border-color:var(--border3);}
+.dchk.on-a{border-color:var(--accent);background:rgba(155,106,62,.09);color:var(--accent);}
+.dchk.on-b{border-color:var(--green);background:rgba(26,122,74,.08);color:var(--green);}
+.dchk.on-c{border-color:var(--orange);background:rgba(184,92,0,.08);color:var(--orange);}
+.ts-row,.urg-row{display:flex;gap:6px;margin-bottom:6px;align-items:center;}
+.ss{flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:7px 9px;color:var(--text);font-family:var(--sans);font-size:13px;}
+.ti{width:88px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:7px 9px;color:var(--text);font-family:var(--mono);font-size:13px;}
+.ss:focus,.ti:focus{outline:none;border-color:var(--accent);}
+.add-row-btn{padding:6px 12px;border-radius:6px;background:transparent;border:1px solid var(--border2);color:var(--text2);cursor:pointer;font-size:13px;font-family:var(--sans);margin-top:4px;}
+.add-row-btn:hover{border-color:var(--accent);color:var(--accent);}
+.dir-pref-row{display:flex;align-items:flex-start;gap:8px;}
+.dir-pref-lbl{width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;background:var(--surface3);border:1px solid var(--border2);margin-top:2px;}
+.rm-btn{width:24px;height:24px;border-radius:4px;background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;}
+.rm-btn:hover{background:rgba(192,57,43,.1);color:var(--red);}
+.popup-ta{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:9px 11px;color:var(--text);font-family:var(--sans);font-size:14px;resize:vertical;min-height:64px;}
+.popup-ta:focus{outline:none;border-color:var(--accent);}
+.popup-footer{display:flex;gap:8px;margin-top:20px;}
+.btn-go{flex:1;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:13px;font-size:16px;font-weight:800;cursor:pointer;font-family:var(--sans);box-shadow:0 2px 8px rgba(155,106,62,.3);transition:all .15s;}
+.btn-go:hover{background:var(--accent2);box-shadow:0 4px 14px rgba(155,106,62,.4);}
+.btn-go:disabled{opacity:.4;cursor:default;}
+.claude-loading{text-align:center;padding:24px;color:var(--text2);font-size:14px;}
+.spinner{width:32px;height:32px;border:3px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.result-preview{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:14px;margin-top:12px;}
+.result-driver-block{margin-bottom:12px;}
+.result-driver-title{font-size:13px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.result-job-row{font-size:12px;padding:4px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;color:var(--text2);}
+.result-job-row:last-child{border-bottom:none;}
+.result-reason{font-size:12px;color:var(--text2);background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:10px;margin-top:10px;line-height:1.7;}
+.modal-bd{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:400;display:none;align-items:center;justify-content:center;}
+.modal-bd.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:13px;padding:20px;min-width:300px;box-shadow:0 8px 32px rgba(0,0,0,.12);}
+.modal-title{font-size:16px;font-weight:800;margin-bottom:4px;}
+.modal-sub{font-size:13px;color:var(--text2);margin-bottom:14px;}
+.modal-footer{display:flex;gap:8px;margin-top:14px;}
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;}
+.type-opt{padding:10px 10px;border-radius:7px;border:1px solid var(--border);cursor:pointer;transition:all .12s;display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500;}
+.type-opt:hover{border-color:var(--border2);background:var(--surface2);}
+.type-opt.sel{border-color:var(--accent);background:rgba(155,106,62,.09);color:var(--accent);}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--text);color:var(--surface);border-radius:10px;padding:11px 20px;font-size:14px;transition:transform .25s cubic-bezier(.34,1.56,.64,1);z-index:999;box-shadow:0 4px 16px rgba(0,0,0,.14);}
+.toast.on{transform:translateX(-50%) translateY(0);}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-mark">ZN</div>
+    <div>
+      <div class="logo-text">ซูนิค Job Board</div>
+      <div class="logo-sub">v5 · Phase 1</div>
+    </div>
+  </div>
+  <div class="search-wrap">
+      <div id="searchFilterBadge" style="display:none;position:absolute;top:calc(100% + 4px);
+        left:0;background:var(--accent);color:#fff;border-radius:6px;padding:4px 10px;
+        font-size:12px;z-index:301;white-space:nowrap;align-items:center;gap:6px;">
+        <span id="searchFilterText"></span>
+        <span onclick="clearSearchFilter()" style="cursor:pointer;font-weight:700;">✕</span>
+      </div>
+    <span class="search-icon">🔍</span>
+    <input class="search-input" id="searchInput" placeholder="ค้นหาลูกค้า, รหัส, บิล, พื้นที่..."
+      oninput="onSearch()" onkeydown="searchKey(event)" autocomplete="off">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+  <div class="header-right">
+    <div class="date-badge" id="dateBadge"></div>
+    <button class="btn btn-ghost" onclick="toggleCustomForm()">+ เพิ่มงาน</button>
+    <button class="btn btn-ghost" onclick="openImportModal()">📥 นำเข้า</button>
+    <button class="btn" style="background:var(--green);color:#0e1016;font-weight:700;" onclick="window.open('https://script.google.com/macros/s/AKfycbzOktAmSwp0HJCPMcCxBB1HeAqdza6YI1OBkfcw4W5HL8cKAnn5VBWuaxf2QLM0nTmH/exec?page=return','_blank')">📋 รับงานคืน</button>
+  </div>
+</div>
+
+<div class="app" id="app">
+
+  <div class="left-pane" id="leftPane" style="width:60%">
+
+    <div class="main-tabs">
+
+      <button class="main-tab active" id="mt-del" onclick="setMainTab('del')">🚚 งานส่ง <span class="tab-badge" id="bdg-del">0</span></button>
+
+      <button class="main-tab" id="mt-pu" onclick="setMainTab('pu')">🏢 ลูกค้ามารับเอง <span class="tab-badge" id="bdg-pu">0</span></button>
+
+    </div>
+
+    <div id="pDel" style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
+
+      <div class="pane-header"><span class="pane-title">รายการงานวันนี้</span><span class="count-pill" id="totalCount">0 รายการ</span></div>
+
+      <div class="subtabs">
+
+        <button class="subtab active" onclick="setSubTab('all',this)">ทั้งหมด <span class="tab-badge" id="bdg-all">0</span></button>
+
+        <button class="subtab" onclick="setSubTab('new',this)">ใหม่วันนี้ <span class="tab-badge" id="bdg-new">0</span></button>
+
+        <button class="subtab" onclick="setSubTab('pending',this)">ค้างอยู่ <span class="tab-badge" id="bdg-pend" style="background:rgba(255,107,107,.12);color:var(--red)">0</span></button>
+
+        <button class="subtab" onclick="setSubTab('done',this)">เสร็จแล้ว <span class="tab-badge" id="bdg-done" style="background:rgba(53,224,170,.1);color:var(--green)">0</span></button>
+
+      </div>
+
+      <div class="toolbar">
+
+        <button class="filter-chip active" onclick="setFilter('all',this)">ทั้งหมด</button>
+
+        <button class="filter-chip" onclick="setFilter('ส่งสินค้า',this)">📦 ส่งสินค้า</button>
+
+        <button class="filter-chip" onclick="setFilter('วางบิล',this)">🧾 วางบิล</button>
+
+        <button class="filter-chip" onclick="setFilter('รับเช็ค',this)">✅ รับเช็ค</button>
+
+        <button class="filter-chip" onclick="setFilter('ส่งเอกสาร',this)">📄 ส่งเอกสาร</button>
+
+        <button class="filter-chip" onclick="setFilter('อื่นๆ',this)">➕ อื่นๆ</button>
+
+      </div>
+
+      <div class="toolbar" id="dirToolbar">
+
+        <button class="dir-chip active" onclick="setDirFilter('all',this)">🧭 ทุกทิศ</button>
+
+        <button class="dir-chip" onclick="setDirFilter('เหนือ',this)" style="color:#5b9cff;border-color:#5b9cff55">⬆ เหนือ</button>
+
+        <button class="dir-chip" onclick="setDirFilter('ใต้',this)" style="color:#fba84a;border-color:#fba84a55">⬇ ใต้</button>
+
+        <button class="dir-chip" onclick="setDirFilter('ตะวันตก',this)" style="color:#35e0aa;border-color:#35e0aa55">⬅ ตะวันตก</button>
+
+        <button class="dir-chip" onclick="setDirFilter('ตะวันออก',this)" style="color:#fce066;border-color:#fce06655">➡ ตะวันออก</button>
+
+        <button class="dir-chip" onclick="setDirFilter('กลาง',this)" style="color:#a78bfa;border-color:#a78bfa55">⊙ กลาง</button>
+
+        <button class="dir-chip" onclick="setDirFilter('ไม่มีข้อมูล',this)" style="color:#9da8cc;border-color:#9da8cc55">🚌 ไม่มีข้อมูล</button>
+
+        <div class="toolbar-sep"></div>
+
+        <span class="sort-label">เรียง:</span>
+
+        <select class="sort-select" id="sortSel" onchange="renderJobs()">
+
+          <option value="default">ค่าเริ่มต้น</option>
+
+          <option value="date">วันที่</option>
+
+          <option value="code">รหัสลูกค้า</option>
+
+          <option value="type">ประเภทงาน</option>
+
+          <option value="area">พื้นที่</option>
+
+          <option value="dir">ทิศ</option>
+
+          <option value="amt">ยอดเงิน</option>
+
+        </select>
+
+        <button id="sortDirBtn" onclick="toggleSortDir()"
+          style="padding:4px 8px;border-radius:5px;border:1px solid var(--border2);
+          background:var(--surface);cursor:pointer;font-size:13px;color:var(--text2);">↑</button>
+
+        <button class="select-all-btn" id="selAllBtn" onclick="toggleSelAll()">☐ เลือกทั้งหมด</button>
+
+      </div>
+
+    <div class="custom-form" id="customForm">
+
+      <div class="fr" style="position:relative;">
+
+        <div style="flex:1;position:relative;">
+
+          <input class="fi" id="cfN" placeholder="พิมพ์รหัส หรือ ชื่อลูกค้า..." oninput="cfSearch()" autocomplete="off" style="width:100%;">
+
+          <div id="cfDrop" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);max-height:200px;overflow-y:auto;z-index:500;box-shadow:0 4px 16px rgba(0,0,0,.1);"></div>
+
+        </div>
+
+        <select class="fs" id="cfT"><option>ส่งสินค้า</option><option>วางบิล</option><option>รับเช็ค</option><option>ส่งเอกสาร</option><option>จ่ายบิล</option><option>รับของ</option><option>อื่นๆ</option></select>
+
+      </div>
+
+      <div class="fr">
+
+        <input class="fi" id="cfCode" placeholder="รหัสลูกค้า" style="width:100px;flex:none;"> <input class="fi" id="cfInv" placeholder="เลขที่เอกสาร" style="width:120px;flex:none;">
+
+        <input class="fi" id="cfA" placeholder="พื้นที่/Site">
+
+        <select class="fs" id="cfD" style="width:90px;flex:none;">
+  <option value="">ทิศ</option>
+  <option>เหนือ</option>
+  <option>ใต้</option>
+  <option>ตะวันออก</option>
+  <option>ตะวันตก</option>
+  <option>กลาง</option>
+  <option>ต่างจังหวัด</option>
+</select>
+
+        <input class="fi" id="cfAm" placeholder="ยอด ฿" type="number" style="width:90px;flex:none;">
+<input class="fi" id="cfDate" type="date" style="width:130px;flex:none;">
+
+      </div>
+
+      <div class="fr">
+
+        <input class="fi" id="cfNo" placeholder="หมายเหตุ">
+
+        <select class="fs" id="cfDr"><option value="">คนขับ</option><option>O</option><option>M</option><option>N</option><option value="self">รับเอง</option></select>
+
+      </div>
+
+      <div style="display:flex;gap:5px;">
+
+        <button class="btn btn-primary" style="flex:1;font-size:13px;" onclick="addCustomJob()">✓ เพิ่ม</button>
+
+        <button class="btn btn-ghost" style="font-size:13px;color:var(--accent);border-color:var(--accent);" onclick="openCustModal()">👤 เพิ่ม/แก้ไขลูกค้า</button>
+
+        <button class="btn btn-ghost" style="font-size:13px;" onclick="toggleCustomForm()">ยกเลิก</button>
+
+      </div>
+
+    </div>
+      <div class="job-scroll" id="jobList"></div>
+
+    </div>
+
+    <div id="pPu" style="display:none;flex-direction:column;flex:1;overflow:hidden;">
+
+      <div class="pane-header">
+
+        <span class="pane-title">ลูกค้ามารับที่ออฟฟิศ</span>
+
+        <div style="display:flex;gap:6px;align-items:center;">
+
+          <span class="count-pill" id="puCount">0 รายการ</span>
+
+          <button class="btn btn-ghost" style="font-size:13px;padding:4px 10px;" onclick="addPuPrompt()">+ เพิ่ม</button>
+
+        </div>
+
+      </div>
+
+      <div class="job-scroll" id="puList"></div>
+
+    </div>
+
+  </div>
+
+  <!-- RESIZER -->
+
+  <div class="resizer" id="resizer"></div>
+
+  <!-- RIGHT -->
+
+  <div class="right-pane" id="rightPane" style="flex:1;">
+
+    <div class="pane-header" style="flex-wrap:wrap;gap:6px;">
+
+      <span class="pane-title">ตารางงาน</span>
+
+      <div style="display:flex;align-items:center;gap:4px;">
+
+        <button onclick="shiftSchedDate(-1)"
+
+          style="width:26px;height:26px;border-radius:5px;border:1px solid var(--border2);
+
+          background:var(--surface2);color:var(--text2);cursor:pointer;font-size:14px;
+
+          display:flex;align-items:center;justify-content:center;transition:all .12s;"
+
+          onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
+
+          onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text2)'">&#x2039;</button>
+
+        <input type="date" id="schedDate"
+
+          style="background:var(--surface2);border:1px solid var(--border2);
+
+          border-radius:6px;padding:4px 8px;color:var(--text);
+
+          font-family:var(--mono);font-size:12px;cursor:pointer;"
+
+          onchange="onSchedDateChange()">
+
+        <button onclick="shiftSchedDate(1)"
+
+          style="width:26px;height:26px;border-radius:5px;border:1px solid var(--border2);
+
+          background:var(--surface2);color:var(--text2);cursor:pointer;font-size:14px;
+
+          display:flex;align-items:center;justify-content:center;transition:all .12s;"
+
+          onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
+
+          onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text2)'">&#x203A;</button>
+
+      </div>
+
+      <span class="count-pill" id="schedCount">0 จุด</span>
+
+    </div>
+
+    <div class="driver-tabs">
+
+      <button class="driver-tab d-a active" onclick="setDriver('A',this)">
+
+        <div class="d-av">O</div><span class="d-lbl" id="dc-A">ว่าง</span>
+
+      </button>
+
+      <button class="driver-tab d-b" onclick="setDriver('B',this)">
+
+        <div class="d-av">M</div><span class="d-lbl" id="dc-B">ว่าง</span>
+
+      </button>
+
+      <button class="driver-tab d-c" onclick="setDriver('C',this)">
+
+        <div class="d-av">N</div><span class="d-lbl" id="dc-C">ว่าง</span>
+
+      </button>
+
+    </div>
+
+    <button class="add-sel-btn" id="addSelBtn" onclick="addSelToSched()" disabled>
+
+      <span id="addBtnTxt">+ เพิ่มรายการที่เลือก -> คนขับ </span><span id="addBtnDrv">O</span>
+
+    </button>
+
+    <div class="driver-body" id="driverBody"></div>
+
+    <div class="action-bar">
+
+      <div class="warn-badge" id="warnBadge"></div>
+
+      <div class="action-summary" id="actionSum"><span style="color:var(--text2)">เลือกรายการแล้วเพิ่มลงตาราง</span></div>
+
+      <div class="action-buttons">
+
+        <button class="btn btn-danger" onclick="clearSched()" style="font-size:13px;padding:7px 12px;">🗑 ล้างตาราง</button>
+
+        <button class="btn btn-primary" onclick="saveSchedule()" id="btnSave" style="font-size:13px;padding:7px 12px;">💾 บันทึกตาราง</button>
+
+        <button class="btn btn-ghost" onclick="printSheet()" style="font-size:13px;padding:7px 12px;">🖨️ พิมพ์ใบงาน</button>
+        <button class="btn btn-ghost" onclick="downloadDriverXlsx()" style="font-size:13px;padding:7px 12px;">📥 ดาวน์โหลดใบงาน (.xlsx)</button>
+
+        <button class="btn-route" onclick="openRoutePop()">🗺️ จัดเส้นทางเดินรถ</button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+<!-- ROUTE POPUP -->
+<div class="backdrop" id="routeBd" onclick="if(event.target===this)closeRoutePop()">
+  <div class="popup" id="routePopup">
+    <div class="popup-title">🗺️ จัดเส้นทางเดินรถ</div>
+    <div class="popup-sub">ระบุคนขับและข้อจำกัดพิเศษ แล้วส่งให้ Claude จัดให้อัตโนมัติ</div>
+    <div class="psec">
+      <div class="psec-title">✅ คนขับที่มาวันนี้</div>
+      <div class="dchk-row">
+        <div class="dchk on-a" id="dchkA" onclick="toggleDChk('A')">คนขับ O</div>
+        <div class="dchk on-b" id="dchkB" onclick="toggleDChk('B')">คนขับ M</div>
+        <div class="dchk on-c" id="dchkC" onclick="toggleDChk('C')">คนขับ N</div>
+      </div>
+    </div>
+    <div class="psec">
+      <div class="psec-title">🕐 ลูกค้านัดเวลาเฉพาะ</div>
+      <div id="tsList"></div>
+      <button class="add-row-btn" onclick="addTsRow()">+ เพิ่มลูกค้านัดเวลา</button>
+    </div>
+    <div class="psec">
+      <div class="psec-title">⚡ งานด่วน / ต้องไปก่อน</div>
+      <div id="urgList"></div>
+      <button class="add-row-btn" onclick="addUrgRow()">+ เพิ่มงานด่วน</button>
+    </div>
+    <div class="psec">
+      <div class="psec-title">📝 หมายเหตุพิเศษ</div>
+      <textarea class="popup-ta" id="routeNote" placeholder="เช่น คนขับ M ไม่สะดวกไปทางใต้วันนี้..."></textarea>
+    </div>
+    <div id="routeResult"></div>
+    <div class="popup-footer" id="routeFooter">
+      <button class="btn btn-ghost" onclick="closeRoutePop()">ยกเลิก</button>
+      <button class="btn-go" id="btnGo" onclick="submitRoute()">🚀 ส่งให้ Claude จัดเลย</button>
+    </div>
+  </div>
+</div>
+
+<!-- TYPE MODAL -->
+<div class="modal-bd" id="typeMd">
+  <div class="modal">
+    <div class="modal-title">เปลี่ยนประเภทงาน</div>
+    <div class="modal-sub" id="typeMdSub"></div>
+    <div class="type-grid" id="typeGrid"></div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" style="flex:1;font-size:13px;" onclick="confirmType()">บันทึก</button>
+      <button class="btn btn-ghost" style="font-size:13px;" onclick="closeTypeMd()">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<!-- PICKUP MODAL -->
+<div class="modal-bd" id="puMd">
+  <div class="modal">
+    <div class="modal-title">🏢 ย้ายเป็นลูกค้ามารับเอง</div>
+    <div class="modal-sub" id="puMdSub"></div>
+    <div class="fr" style="margin-bottom:6px;">
+      <input class="fi" id="puAppt" placeholder="วันเวลานัด เช่น 25/02 14:00 (ถ้ามี)">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" style="flex:1;font-size:13px;" onclick="confirmMovePickup()">✓ ย้ายเลย</button>
+      <button class="btn btn-ghost" style="font-size:13px;" onclick="closePuMd()">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD PICKUP MODAL -->
+<div class="modal-bd" id="addPuMd">
+  <div class="modal" style="max-width:340px;">
+    <div class="modal-title">🏢 เพิ่มลูกค้ามารับเอง</div>
+    <div style="display:flex;flex-direction:column;gap:7px;margin:12px 0;">
+      <input class="fi" id="addPuName" placeholder="ชื่อลูกค้า *">
+      <input class="fi" id="addPuAppt" placeholder="วันเวลานัด เช่น 25/02 14:00 (ถ้ามี)">
+      <input class="fi" id="addPuAmt" placeholder="ยอดเงิน (฿)" type="number">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" style="flex:1;font-size:14px;" onclick="document.getElementById('addPuMd').classList.remove('open')">ยกเลิก</button>
+      <button class="btn btn-primary" style="flex:1;font-size:14px;" onclick="confirmAddPu()">✓ เพิ่ม</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM DIALOG -->
+<div class="modal-bd" id="confirmDlg">
+  <div class="modal" style="max-width:320px;">
+    <div class="modal-title" style="font-size:15px;margin-bottom:10px;" id="confirmMsg"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" style="flex:1;font-size:14px;" onclick="closeConfirmDlg()">ยกเลิก</button>
+      <button class="btn btn-primary" style="flex:1;font-size:14px;" id="confirmOkBtn">ยืนยัน</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bd" id="custMd">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-title">👤 เพิ่ม/แก้ไขลูกค้า</div>
+    <div class="modal-sub" id="custMdSub">กรอกข้อมูลลูกค้าใหม่ — จะบันทึกลง Master พร้อม flag "รอ approve"</div>
+    <div style="display:flex;flex-direction:column;gap:7px;margin:4px 0 12px;">
+      <input class="fi" id="cmCode" placeholder="รหัสลูกค้า (ไม่บังคับ)">
+      <input class="fi" id="cmName" placeholder="ชื่อลูกค้า *">
+      <input class="fi" id="cmSite" placeholder="Site / พื้นที่จัดส่ง">
+      <select class="fi" id="cmDir">
+  <option value="">-- เลือกทิศ --</option>
+  <option>เหนือ</option>
+  <option>ใต้</option>
+  <option>ตะวันออก</option>
+  <option>ตะวันตก</option>
+  <option>กลาง</option>
+  <option>ต่างจังหวัด</option>
+</select>
+      <input class="fi" id="cmPhone" placeholder="เบอร์โทร">
+      <input class="fi" id="cmNote" placeholder="หมายเหตุ">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" style="flex:1;" onclick="closeCustMd()">ยกเลิก</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="saveCustMd()">💾 บันทึกลง Master</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toastEl"></div>
+
+<script>
+// ── STATE ──
+let jobs = [], pickups = [], sched = { A: [], B: [], C: [] };
+let searchFilter = null;
+let mainTab = 'del', subTab = 'all', flt = 'all', dirFlt = 'all', drv = 'A';
+let sel = new Set(), editId = null, pendType = null, puMoveId = null;
+let dragI = null, actDrv = { A: true, B: true, C: true };
+let tsN = 0, urgN = 0;
+let pendingRouteResult = null;
+
+const todayISO = new Date().toISOString().slice(0, 10);
+let schedSaved = true;
+
+// ── INIT ──
+window.addEventListener('load', () => {
+  document.getElementById('dateBadge').textContent = new Date().toLocaleDateString('th-TH', {
+    weekday: 'short', day: '2-digit', month: 'short', year: 'numeric'
+  });
+
+  const k = localStorage.getItem('zunic_api_key');
+  if (k) document.getElementById('apiKeyInput') && (document.getElementById('apiKeyInput').value = k);
+
+  init();
+  initResizer();
+
+  callGAS('getJobsToday').then(data => {
+    jobs = data.jobs || [];
+    console.log('DEBUG jobs.length=', jobs.length, 'first=', jobs[0] ? JSON.stringify(jobs[0]).substring(0,100) : 'empty');
+    pickups = data.pickups || [];
+    sched = data.schedule || { A: [], B: [], C: [] };
+    if (data.today) document.getElementById('dateBadge').textContent = data.today;
+    init();
+  }).catch(e => {
+    console.error('Load error:', e);
+    toast('⚠️ โหลดข้อมูลไม่สำเร็จ: ' + e.message);
+  });
+});
+
+// [2] PATCHED: init schedDate to today if empty
+function init() {
+  if (!document.getElementById('schedDate').value) {
+    document.getElementById('schedDate').value = new Date().toISOString().slice(0,10);
+  }
+    const _jl = document.getElementById('jobList'); if (_jl) { const _ld = _jl.querySelector('.claude-loading'); if (_ld) _ld.style.display = 'none'; }
+  renderJobs();
+  renderSched();
+  updateCounts();
+  renderPickup();
+}
+
+// ── RESIZER ──
+function initResizer() {
+  const rsz = document.getElementById('resizer');
+  const lp = document.getElementById('leftPane');
+  const rp = document.getElementById('rightPane');
+  const app = document.getElementById('app');
+  let dragging = false, startX = 0, startW = 0;
+  rsz.addEventListener('mousedown', e => {
+    dragging = true; startX = e.clientX; startW = lp.offsetWidth;
+    rsz.classList.add('dragging'); document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  });
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const total = app.offsetWidth - rsz.offsetWidth;
+    const nw = Math.max(300, Math.min(total - 280, startW + (e.clientX - startX)));
+    lp.style.width = nw + 'px'; rp.style.flex = '1';
+  });
+  document.addEventListener('mouseup', () => {
+    if (!dragging) return;
+    dragging = false; rsz.classList.remove('dragging');
+    document.body.style.cursor = ''; document.body.style.userSelect = '';
+  });
+}
+
+// ── SEARCH ──
+let srchI = -1;
+function onSearch() {
+  const raw = document.getElementById('searchInput').value.trim();
+  const q = raw.toLowerCase().replace(/[\s\-_\.]/g, '');
+  const res = document.getElementById('searchResults');
+  if (!q) { res.classList.remove('open'); return; }
+  const m = jobs.filter(j =>
+    (j.name||'').toLowerCase().replace(/[\s\-_\.]/g,'').includes(q) ||
+    (j.code||'').toLowerCase().replace(/[\s\-_\.]/g,'').includes(q) ||
+    String(j.inv||'').toLowerCase().replace(/[\s\-_\.]/g,'').includes(q) ||
+    (j.area||'').toLowerCase().replace(/[\s\-_\.]/g,'').includes(q)
+  );
+  if (!m.length) { res.classList.remove('open'); return; }
+  // group by customer name+code
+  const groups = {};
+  m.forEach(j => {
+    const key = j.code + '|' + j.name;
+    if (!groups[key]) groups[key] = { code: j.code, name: j.name, area: j.area, count: 0 };
+    groups[key].count++;
+  });
+  const entries = Object.values(groups).slice(0, 8);
+  res.innerHTML = entries.map(g =>
+    '<div class="sri" onmousedown="filterByCustomer(\'' +
+    g.code.replace(/'/g,"\\'") + '\',\'' + g.name.replace(/'/g,"\\'") + '\')">' +
+    '  <span style="font-family:var(--mono);font-size:11px;color:var(--accent);min-width:56px">' + g.code + '</span>' +
+    '  <span style="flex:1;font-weight:600">' + g.name + '</span>' +
+    '  <span style="font-size:11px;background:rgba(155,106,62,.12);color:var(--accent);padding:1px 7px;border-radius:10px;">' + g.count + ' งาน</span>' +
+    '</div>'
+  ).join('');
+  srchI = -1; res.classList.add('open');
+}
+function searchKey(e) {
+  const items = document.getElementById('searchResults').querySelectorAll('.sri');
+  if (e.key === 'ArrowDown') srchI = Math.min(srchI + 1, items.length - 1);
+  else if (e.key === 'ArrowUp') srchI = Math.max(srchI - 1, -1);
+  else if (e.key === 'Enter' && srchI >= 0) { items[srchI].onmousedown(); return; }
+  else if (e.key === 'Escape') { document.getElementById('searchResults').classList.remove('open'); return; }
+  items.forEach((el, i) => el.classList.toggle('hi', i === srchI));
+}
+function filterByCustomer(code, name) {
+  searchFilter = { code, name };
+  document.getElementById('searchInput').value = name;
+  document.getElementById('searchResults').classList.remove('open');
+  document.getElementById('searchFilterBadge').style.display = 'flex';
+  document.getElementById('searchFilterText').textContent = 'ค้นหา: ' + name;
+  renderJobs();
+}
+
+function clearSearchFilter() {
+  searchFilter = null;
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchFilterBadge').style.display = 'none';
+  renderJobs();
+}
+
+function jumpJob(id) {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchResults').classList.remove('open');
+  setMainTab('del'); subTab = 'all'; flt = 'all';
+  document.querySelectorAll('.subtab').forEach((t, i) => t.classList.toggle('active', i === 0));
+  document.querySelectorAll('.filter-chip').forEach((t, i) => t.classList.toggle('active', i === 0));
+  renderJobs();
+  setTimeout(() => {
+    const el = document.getElementById('j' + id);
+    if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 800); }
+  }, 60);
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.search-wrap'))
+    document.getElementById('searchResults').classList.remove('open');
+});
+
+// ── RENDER JOBS ──
+let sortAsc = true;
+
+function toggleSortDir() {
+  sortAsc = !sortAsc;
+  const btn = document.getElementById('sortDirBtn');
+  if (btn) btn.textContent = sortAsc ? '↑' : '↓';
+  renderJobs();
+}
+
+function sorted(arr) {
+  const s = document.getElementById('sortSel').value, a = [...arr];
+  const dir = sortAsc ? 1 : -1;
+  if (s === 'date')   a.sort((x, y) => dir * (x.date||'').localeCompare(y.date||''));
+  else if (s === 'code') a.sort((x, y) => dir * (x.code||'').localeCompare(y.code||''));
+  else if (s === 'type') a.sort((x, y) => dir * (x.type||'').localeCompare(y.type||'', 'th'));
+  else if (s === 'area') a.sort((x, y) => dir * (x.area||'').localeCompare(y.area||'', 'th'));
+  else if (s === 'dir')  a.sort((x, y) => dir * (x.dir||'').localeCompare(y.dir||'', 'th'));
+  else if (s === 'amt')  a.sort((x, y) => dir * ((x.amt||0) - (y.amt||0)));
+  else a.sort((x, y) => {
+    const p = { pending: 0, new: 1, done: 2 };
+    return (p[x.st]||1) - (p[y.st]||1) || (x.date||'').localeCompare(y.date||'');
+  });
+  return a;
+}
+function filtered() {
+  return jobs.filter(j => {
+    const tOk = subTab === 'all' || j.st === subTab;
+    const fOk = flt === 'all' || j.type === flt;
+    const dOk = dirFlt === 'all' || j.dir === dirFlt;
+    const sOk = !searchFilter || j.code === searchFilter.code;
+    return tOk && fOk && dOk && sOk;
+  });
+}
+function inSched(id) { return Object.values(sched).some(a => a.includes(id)); }
+
+function renderJobs() {
+  const all = sorted(filtered());
+  const pend = all.filter(j => j.st === 'pending');
+  const nw = all.filter(j => j.st === 'new');
+  const dn = all.filter(j => j.st === 'done');
+  let h = '';
+  if (pend.length && subTab !== 'new' && subTab !== 'done') {
+    h += '<div class="section-label">⚠️ ค้างอยู่ — ' + (pend.length) + ' รายการ</div>';
+    pend.forEach(j => h += jobH(j));
+  }
+  if (nw.length && subTab !== 'pending' && subTab !== 'done') {
+    if (pend.length && subTab === 'all') h += '<div class="section-label">✨ ใหม่วันนี้ — ' + (nw.length) + ' รายการ</div>';
+    nw.forEach(j => h += jobH(j));
+  }
+  if (dn.length && (subTab === 'done' || subTab === 'all')) {
+    if (subTab === 'all') h += '<div class="section-label">✅ เสร็จแล้ว — ' + (dn.length) + ' รายการ</div>';
+    dn.forEach(j => h += jobH(j));
+  }
+  if (!all.length) h = '<div style="text-align:center;padding:48px;color:var(--text2);font-size:14px;">ไม่มีรายการ</div>';
+  document.getElementById('jobList').innerHTML = h;
+  const avail = filtered().filter(j => !inSched(j.id));
+  const allSel = avail.length > 0 && avail.every(j => sel.has(j.id));
+  document.getElementById('selAllBtn').textContent = (allSel ? '☑' : '☐') + ' เลือกทั้งหมด';
+}
+
+function jobH(j) {
+  const t = TYPE_STYLES[j.type] || TYPE_STYLES['อื่นๆ'];
+  const ins = inSched(j.id), s = sel.has(j.id);
+  const isPend = j.st === 'pending';
+  const days = isPend ? Math.floor((Date.now() - new Date(j.date)) / 86400000) : 0;
+  const dc = DIR_COLORS[j.dir] || '#556';
+  return '<div class="job-item' + (s ? ' selected' : '') + (ins ? ' in-schedule' : '') + '" id="j' + (j.id) + '" onclick="toggleSel(\'' + (j.id) + '\',event)">' +
+    '    <input type="checkbox" class="job-cb" ' + (s ? 'checked' : '') + ' ' + (ins ? 'disabled' : '') + ' onclick="toggleSel(\'' + (j.id) + '\',event)">' +
+    '    <div class="job-dot" style="background:' + (t.c) + '"></div>' +
+    '    <div class="job-main">' +
+    '      <div class="job-top">' +
+    '        <span class="job-code">' + (j.code) + '</span>' +
+    '        <span class="job-inv">' + (j.inv) + '<\/span>' +
+    '        ' + (j.date ? '<span class="job-inv" style="color:var(--text3)">📅 ' + String(j.date).split('\/').join('-') + '<\/span>' : '') +
+    '        <span class="type-tag" style="color:' + (t.c) + ';background:' + (t.bg) + '" onclick="openTypeMd(\'' + (j.id) + '\',event)">' + (t.i) + ' ' + (j.type) + '</span>' +
+    '        ' + (isPend && days > 0 ? '<span class="' + (days >= 3 ? 'urgent-tag' : 'note-tag') + '">ค้าง ' + (days) + 'ว.</span>' : '') +
+    '      </div>' +
+    '      <div class="job-name">' + (j.name) + '</div>' +
+    '      <div class="job-meta">' +
+    '        <span>📍 ' + (j.area || '—') + '</span>' +
+    '        <span class="dir-tag" style="border-color:' + (dc) + '44;color:' + (dc) + '">' + (j.dir || '—') + '</span>' +
+    '        ' + (j.note ? '<span class="note-tag">· ' + (j.note) + '</span>' : '') +
+    '      </div>' +
+    '    </div>' +
+    '    ' + (!ins ? '<div class="job-actions">' +
+    '      <button class="act-btn qa qa-a" onclick="quickAdd(\'' + (j.id) + '\',\'A\',event)">+O</button>' +
+    '      <button class="act-btn qa qa-b" onclick="quickAdd(\'' + (j.id) + '\',\'B\',event)">+M</button>' +
+    '      <button class="act-btn qa qa-c" onclick="quickAdd(\'' + (j.id) + '\',\'C\',event)">+N</button>' +
+    '      <button class="act-btn pickup" onclick="openPuMd(\'' + (j.id) + '\',event)">🏢</button>' +
+    '      <button class="act-btn" onclick="openTypeMd(\'' + (j.id) + '\',event)">✎</button>' +
+    '      <button class="act-btn del" onclick="delJob(\'' + (j.id) + '\',event)">🗑</button>' +
+    '    </div>' : '') +
+    '    <div class="job-amount">' + (j.amt ? (fmtAmt(j.amt) + '<small>บาท</small>') : '—') + '</div>' +
+    '  </div>';
+}
+
+// ── PICKUP ──
+function renderPickup() {
+  const wait = pickups.filter(p => p.st === 'waiting');
+  const dn = pickups.filter(p => p.st === 'done');
+  let h = '';
+  if (wait.length) { h += '<div class="section-label">⏳ รอรับ — ' + (wait.length) + ' รายการ</div>'; wait.forEach(p => h += puH(p)); }
+  if (dn.length) { h += '<div class="section-label">✅ รับแล้ว — ' + (dn.length) + ' รายการ</div>'; dn.forEach(p => h += puH(p)); }
+  if (!pickups.length) h = '<div style="text-align:center;padding:48px;color:var(--text2);font-size:14px;">ยังไม่มีลูกค้ามารับเอง</div>';
+  document.getElementById('puList').innerHTML = h;
+  document.getElementById('puCount').textContent = (wait.length) + ' รอรับ';
+  document.getElementById('bdg-pu').textContent = pickups.length;
+}
+
+function puH(p) {
+  const isDone = p.st === 'done';
+  return '<div class="pickup-item' + (isDone ? ' done-item' : '') + '">' +
+    '    <div class="pu-dot"></div>' +
+    '    <div class="pu-main">' +
+    '      <div class="pu-name">' + (p.name) + ' <span style="font-family:var(--mono);font-size:11px;color:var(--text2)">' + (p.inv) + '</span></div>' +
+    '      <div class="pu-meta">' +
+    '        <span style="font-family:var(--mono);color:var(--accent)">' + (p.code) + '</span>' +
+    '        <span>฿' + (fmtAmt(p.amt)) + '</span>' +
+    '        ' + (p.appt ? '<span style="color:var(--yellow)">📅 ' + (p.appt) + '</span>' : '') +
+    '        ' + (p.doneAt ? '<span style="color:var(--green)">✓ รับแล้ว ' + (p.doneAt) + '</span>' : '') +
+    '      </div>' +
+    '    </div>' +
+    '    <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;align-items:flex-end">' +
+    '      ' + (!isDone
+        ? '<button class="pu-done-btn" ' + (p._loading ? 'disabled style="opacity:.5"' : '') + ' onclick="markPuDone(\'' + (p.id) + '\')">✓ รับแล้ว</button>' +
+    '           <button class="pu-restore-btn" onclick="restoreToDelivery(\'' + (p.id) + '\')">↩ ส่งแทน</button>'
+        : '<button class="pu-cancel-btn" onclick="cancelPuDone(\'' + (p.id) + '\')">↩ ยกเลิก</button>' +
+    '           <button class="pu-restore-btn" onclick="restoreToDelivery(\'' + (p.id) + '\')">🚚 ส่งแทน</button>'
+      ) +
+    '    </div>' +
+    '  </div>';
+}
+
+async function markPuDone(id) {
+  const p = pickups.find(x => x.id === id);
+  if (!p || p.st === 'done' || p._loading) return;
+  p._loading = true;
+  renderPickup();
+  try {
+    await callGAS('markPickupDone', { id: id });
+    p.st = 'done';
+    p._loading = false;
+    p.doneAt = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+    renderPickup();
+    toast('✓ บันทึกรับสินค้าแล้ว — ' + (p.name));
+  } catch (e) {
+    p._loading = false;
+    renderPickup();
+    toast('⚠️ ' + e.message);
+  }
+}
+async function cancelPuDone(id) {
+  const p = pickups.find(x => x.id === id); if (!p) return;
+  try {
+    await callGAS('cancelPickupDone', { id: id });
+    p.st = 'waiting'; p.doneAt = undefined;
+    renderPickup(); toast('↩ ยกเลิกการรับ — ' + (p.name));
+  } catch (e) { toast('⚠️ ' + e.message); }
+}
+function restoreToDelivery(id) {
+  const p = pickups.find(x => x.id === id); if (!p) return;
+  confirmDlg('ย้าย "' + (p.name) + '" กลับไปรายการงานส่ง?', async () => {
+    try {
+      const res = await callGAS('restorePickupToDelivery', { id: id });
+      jobs.push({
+        id: res.id, code: p.code, inv: p.inv, name: p.name,
+        type: 'ส่งสินค้า', area: '', dir: '', amt: p.amt,
+        date: todayISO, st: 'new', note: 'ย้ายจากมารับเอง'
+      });
+      pickups = pickups.filter(x => x.id !== id);
+      setMainTab('del'); renderPickup(); renderJobs(); updateCounts();
+      toast('🚚 ย้าย "' + (p.name) + '" กลับเป็นงานส่งแล้ว');
+    } catch (e) { toast('⚠️ ' + e.message); }
+  });
+}
+function addPuPrompt() {
+  document.getElementById('addPuName').value = '';
+  document.getElementById('addPuAppt').value = '';
+  document.getElementById('addPuAmt').value = '';
+  document.getElementById('addPuMd').classList.add('open');
+}
+async function confirmAddPu() {
+  const name = document.getElementById('addPuName').value.trim();
+  if (!name) { toast('⚠️ กรุณาระบุชื่อลูกค้า'); return; }
+  const appt = document.getElementById('addPuAppt').value.trim();
+  const amt = parseFloat(document.getElementById('addPuAmt').value) || 0;
+  try {
+    const res = await callGAS('addPickup', { name, appt, amt });
+    pickups.push({ id: res.id, code: 'CUSTOM', inv: '-', name, amt, appt, st: 'waiting' });
+    document.getElementById('addPuMd').classList.remove('open');
+    renderPickup(); updateCounts(); toast('✓ เพิ่ม "' + (name) + '" แล้ว');
+  } catch (e) { toast('⚠️ ' + e.message); }
+}
+
+function openPuMd(id, e) {
+  e.stopPropagation(); puMoveId = id;
+  const j = jobs.find(x => x.id === id);
+  document.getElementById('puMdSub').textContent = j.name + ' — ' + j.inv;
+  document.getElementById('puAppt').value = '';
+  document.getElementById('puMd').classList.add('open');
+}
+function closePuMd() { document.getElementById('puMd').classList.remove('open'); puMoveId = null; }
+async function confirmMovePickup() {
+  const j = jobs.find(x => x.id === puMoveId); if (!j) return closePuMd();
+  const appt = document.getElementById('puAppt').value.trim();
+  try {
+    const res = await callGAS('moveToPickup', { id: puMoveId, appt: appt });
+    pickups.push({ id: res.id, code: j.code, inv: j.inv, name: j.name, amt: j.amt, appt, st: 'waiting' });
+    jobs = jobs.filter(x => x.id !== puMoveId);
+    sel.delete(puMoveId);
+    Object.keys(sched).forEach(d => sched[d] = sched[d].filter(x => x !== puMoveId));
+    closePuMd(); setMainTab('pu');
+    renderJobs(); renderSched(); updateCounts(); renderPickup();
+    toast('🏢 ย้าย "' + (j.name) + '" เป็นมารับเองแล้ว');
+  } catch (e) { toast('⚠️ ' + e.message); }
+}
+
+function quickAdd(id, d, e) {
+  schedSaved = false;
+  e.stopPropagation();
+  if (sched[d].includes(id)) { toast('⚠️ รายการนี้อยู่ในตารางคนขับ ' + (d) + ' แล้ว'); return; }
+  sched[d].push(id); sel.delete(id);
+  callGAS('syncJobToSchedule', { id: id, driver: d, order: sched[d].length });
+  drv = d;
+  document.querySelectorAll('.driver-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector('.driver-tab.d-' + (d.toLowerCase())).classList.add('active');
+  renderJobs(); renderSched(); updateAddBtn(); updateCounts();
+  toast('✓ เพิ่ม -> คนขับ ' + (DRV_NAME[d]) + ' แล้ว');
+}
+
+function toggleSel(id, e) {
+  e.stopPropagation(); if (inSched(id)) return;
+  if (sel.has(id)) sel.delete(id); else sel.add(id);
+  renderJobs(); updateAddBtn();
+}
+function toggleSelAll() {
+  const avail = filtered().filter(j => !inSched(j.id));
+  const all = avail.length > 0 && avail.every(j => sel.has(j.id));
+  if (all) avail.forEach(j => sel.delete(j.id)); else avail.forEach(j => sel.add(j.id));
+  renderJobs(); updateAddBtn();
+}
+function updateAddBtn() {
+  const btn = document.getElementById('addSelBtn');
+  const n = sel.size; btn.disabled = n === 0;
+  btn.childNodes[0].textContent = n > 0 ? '+ เพิ่ม ' + (n) + ' รายการที่เลือก -> คนขับ ' : '+ เพิ่มรายการที่เลือก -> คนขับ ';  document.getElementById('addBtnDrv').textContent = DRV_NAME[drv];
+}
+
+function delJob(id, e) {
+  e.stopPropagation();
+  const j = jobs.find(x => x.id === id);
+  confirmDlg('ลบ "' + (j.name) + '" ออกจากรายการ?', async () => {
+    try {
+      await callGAS('deleteJob', { id: id });
+      jobs = jobs.filter(x => x.id !== id); sel.delete(id);
+      Object.keys(sched).forEach(d => sched[d] = sched[d].filter(x => x !== id));
+      renderJobs(); renderSched(); updateCounts(); updateAddBtn();
+      toast('🗑 ลบ "' + (j.name) + '" แล้ว');
+    } catch (e) { toast('⚠️ ' + e.message); }
+  });
+}
+
+function openTypeMd(id, e) {
+  e.stopPropagation(); editId = id; pendType = null;
+  const j = jobs.find(x => x.id === id);
+  document.getElementById('typeMdSub').textContent = j.name;
+  document.getElementById('typeGrid').innerHTML = Object.entries(TYPE_STYLES).map(([tp, s]) => {
+    const sel = j.type === tp ? ' sel' : '';
+    const onclick = "pendType='" + tp + "';document.querySelectorAll('.type-opt').forEach(e=>e.classList.remove('sel'));this.classList.add('sel')";
+    return '<div class="type-opt' + sel + '" onclick="' + onclick + '">' +
+      '<span>' + s.i + '</span><span>' + tp + '</span>' +
+      '</div>';
+  }).join('');
+  document.getElementById('typeMd').classList.add('open');
+}
+async function confirmType() {
+  if (!pendType || !editId) return closeTypeMd();
+  try {
+    await callGAS('updateJobType', { id: editId, type: pendType });
+    jobs.find(x => x.id === editId).type = pendType;
+    closeTypeMd(); renderJobs(); renderSched();
+    toast('✓ เปลี่ยนประเภทเป็น "' + (pendType) + '" แล้ว');
+  } catch (e) { toast('⚠️ ' + e.message); }
+}
+function closeTypeMd() { document.getElementById('typeMd').classList.remove('open'); editId = null; pendType = null; }
+
+function addSelToSched() {
+  schedSaved = false;
+  if (!sel.size) return;
+  let n = 0; sel.forEach(id => { if (!sched[drv].includes(id)) { sched[drv].push(id); n++;
+    callGAS('syncJobToSchedule', { id: id, driver: drv, order: sched[drv].length });
+  } });
+  sel.clear(); renderJobs(); renderSched(); updateAddBtn(); updateCounts();
+  toast('✓ เพิ่ม ' + (n) + ' รายการ -> คนขับ ' + (DRV_NAME[drv]));
+}
+function removeFromSched(id) {
+  schedSaved = false;
+  Object.keys(sched).forEach(d => sched[d] = sched[d].filter(x => x !== id));
+  callGAS('syncJobToSchedule', { id: id, driver: '', order: 0 });
+  renderJobs(); renderSched(); updateCounts();
+}
+function clearSched() {
+  confirmDlg('ล้างตารางวันนี้ทั้งหมด?', () => {
+    sched = { A: [], B: [], C: [] }; renderJobs(); renderSched(); updateCounts();
+  });
+}
+function shiftSchedDate(delta) {
+  const el = document.getElementById('schedDate');
+  const d = new Date(el.value || new Date().toISOString().slice(0,10));
+  d.setDate(d.getDate() + delta);
+  el.value = d.toISOString().slice(0,10);
+  onSchedDateChange();
+}
+function onSchedDateChange() {
+  const date = document.getElementById('schedDate').value;
+  callGAS('getScheduleByDate', { date: date }).then(function(result) {
+    sched = { A: [], B: [], C: [] };
+        const raw = result.schedule || {};
+            ['A','B','C'].forEach(function(d) {
+                  sched[d] = (raw[d] || []).map(function(id) { return String(id); });
+                      });
+    if (result.jobs && result.jobs.length) {
+      result.jobs.forEach(function(newJob) {
+        if (!jobs.find(function(j) { return j.id === newJob.id; })) {
+          jobs.push(newJob);
+        }
+      });
+    }
+    renderSched();
+    updateCounts();
+    const label = date === new Date().toISOString().slice(0,10) ? 'วันนี้' : date;
+    toast('📅 โหลดตาราง ' + label + ' แล้ว');
+  }).catch(function(e) {
+    toast('⚠️ โหลดตารางไม่สำเร็จ: ' + e.message);
+  });
+}
+
+function renderSched() {
+  const ids = sched[drv];
+  let amt = 0, invs = new Set();
+  ids.forEach(id => { const j = jobs.find(x => x.id === id); if (j) { amt += j.amt || 0; invs.add(j.inv); } });
+  const dc = DRIVER_COLORS[drv] || 'var(--accent)';
+  let h = '<div class="stats-row">' +
+    '    <div class="stat-box"><div class="stat-val" style="color:' + (dc) + '">' + (ids.length) + '</div><div class="stat-label">จุดแวะ</div></div>' +
+    '    <div class="stat-box"><div class="stat-val" style="font-size:' + (amt >= 100000 ? '13px' : '16px') + '">' + (amt >= 1000 ? (amt / 1000).toFixed(1) + 'K' : fmtAmt(amt)) + '</div><div class="stat-label">ยอด ฿</div></div>' +
+    '    <div class="stat-box"><div class="stat-val" style="color:var(--text2)">' + (invs.size) + '</div><div class="stat-label">เอกสาร</div></div>' +
+    '  </div>';
+  if (!ids.length) {
+    h += '<div class="empty-sched"><div class="empty-icon">📋</div>ยังไม่มีงานคนขับ ' + (DRV_NAME[drv]) + '<br><span style="font-size:12px">เลือกรายการซ้ายมือ -> + เพิ่ม<br>ลากจัดลำดับได้</span></div>';
+  } else {
+    ids.forEach((id, idx) => {
+      const j = jobs.find(x => x.id === id) || {id:id, name:'['+id+']', type:'ส่งสินค้า', area:'', dir:'', amt:0, inv:'', note:''};
+      const t = TYPE_STYLES[j.type] || TYPE_STYLES['อื่นๆ'], dc2 = DIR_COLORS[j.dir] || 'var(--text2)';
+      h += '<div class="sched-item" draggable="true"' +
+    '        ondragstart="ds(event,' + (idx) + ')" ondragover="dov(event,' + (idx) + ')"' +
+    '        ondrop="ddrop(event,' + (idx) + ')" ondragleave="dlv(event)" ondragend="de(event)">' +
+    '        <div class="sched-num">' + (idx + 1) + '</div>' +
+    '        <div class="sched-main">' +
+    '          <div class="sched-name">' + (j.name) + '</div>' +
+    '          <div class="sched-meta">' +
+    '            <span style="color:' + (t.c) + '">' + (t.i) + ' ' + (j.type) + '</span>' +
+    '            <span style="font-family:var(--mono);font-size:10px;color:var(--accent);background:rgba(91,156,255,.08);padding:0 5px;border-radius:3px">' + (j.inv) + '</span>' +
+    '            <span>📍 ' + (j.area) + '</span>' +
+    '            <span style="color:' + (dc2) + '">' + (j.dir) + '</span>' +
+    '          </div>' +
+    '          ' + (j.amt ? '<div class="sched-amt">฿' + (fmtAmt(j.amt)) + '</div>' : '') +
+    '          ' + (j.note ? '<div style="font-size:11px;color:var(--orange);margin-top:2px">' + (j.note) + '</div>' : '') +
+    '        </div>' +
+    '        <button class="sched-rm" onclick="removeFromSched(\'' + (id) + '\')">✕</button>' +
+    '      </div>';
+    });
+  }
+  document.getElementById('driverBody').innerHTML = h;
+  ['A', 'B', 'C'].forEach(d => document.getElementById('dc-' + (d)).textContent = sched[d].length ? (sched[d].length) + ' จุด' : 'ว่าง');
+  const total = Object.values(sched).flat().length;
+  document.getElementById('schedCount').textContent = (total) + ' จุด';
+  const unsched = jobs.filter(j => j.st !== 'done' && !inSched(j.id));
+  const parts = ['A', 'B', 'C'].map(d => '<span><b style="color:' + (DRIVER_COLORS[d]) + '">' + (DRV_NAME[d]) + '</b> ' + (sched[d].length) + 'จุด</span>');
+  document.getElementById('actionSum').innerHTML = total > 0 ? parts.join('') : '<span style="color:var(--text2)">เลือกรายการแล้วเพิ่มลงตาราง</span>';
+  const wb = document.getElementById('warnBadge');
+  if (unsched.length > 0 && total > 0) { wb.textContent = '⚠️ ยังมี ' + (unsched.length) + ' รายการที่ยังไม่ได้จัดเส้นทาง'; wb.classList.add('on'); }
+  else { wb.classList.remove('on'); }
+}
+
+function ds(e, i) { dragI = i; e.currentTarget.classList.add('drag-src'); }
+function dov(e, i) { e.preventDefault(); if (i !== dragI) e.currentTarget.classList.add('drag-over'); }
+function dlv(e) { e.currentTarget.classList.remove('drag-over'); }
+function de(e) { e.currentTarget.classList.remove('drag-src'); }
+function ddrop(e, ti) {
+  e.preventDefault(); e.currentTarget.classList.remove('drag-over');
+  if (dragI === null || dragI === ti) return;
+  const a = sched[drv]; const [mv] = a.splice(dragI, 1); a.splice(ti, 0, mv);
+  dragI = null; renderSched(); toast('↕ จัดลำดับใหม่แล้ว');
+}
+
+// [3] PATCHED: saveSchedule passes schedDate to confirmSchedule
+async function saveSchedule() {
+  const total = Object.values(sched).flat().length;
+  if (!total) { toast('⚠️ ยังไม่มีรายการในตาราง'); return; }
+  const btn = document.getElementById('btnSave');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ กำลังบันทึก...'; }
+  try {
+    const schedDate = document.getElementById('schedDate').value || new Date().toISOString().slice(0,10);
+    const res = await callGAS('confirmSchedule', { sched: sched, date: schedDate });
+    schedSaved = true;
+    toast('💾 บันทึกตารางเรียบร้อย — ' + res.totalJobs + ' รายการ');
+    if (btn) { btn.textContent = '✅ บันทึกแล้ว'; }
+    setTimeout(() => {
+      if (btn) { btn.disabled = false; btn.textContent = '💾 บันทึกตาราง'; }
+    }, 2000);
+  } catch (e) {
+    toast('⚠️ บันทึกไม่สำเร็จ: ' + e.message);
+    if (btn) { btn.disabled = false; btn.textContent = '💾 บันทึกตาราง'; }
+  }
+}
+
+function jobOpts(placeholder) {
+  return '<option value="">' + (placeholder || '-- เลือกลูกค้า --') + '</option>' +
+    jobs.filter(j => j.st !== 'done').map(j => '<option value="' + (j.id) + '">' + (j.name) + ' (' + (j.code) + ') — ' + (j.area) + '</option>').join('');
+}
+function openRoutePop() {
+  document.getElementById('tsList').innerHTML = '';
+  document.getElementById('urgList').innerHTML = '';
+  document.getElementById('routeResult').innerHTML = '';
+  document.getElementById('routeNote').value = '';
+  document.getElementById('routeFooter').style.display = 'flex';
+  document.getElementById('btnGo').disabled = false;
+  document.getElementById('btnGo').textContent = '🚀 ส่งให้ Claude จัดเลย';
+  tsN = 0; urgN = 0; addTsRow(); addUrgRow();
+  document.getElementById('routeBd').classList.add('open');
+}
+function closeRoutePop() { document.getElementById('routeBd').classList.remove('open'); }
+function addTsRow() {
+  tsN++; const d = document.createElement('div'); d.className = 'ts-row';
+  d.innerHTML = '<select class="ss">' + (jobOpts()) + '</select>' +
+    '    <input class="ti" placeholder="10:30">' +
+    '    <button class="rm-btn" onclick="this.parentElement.remove()">✕</button>';
+  document.getElementById('tsList').appendChild(d);
+}
+function addUrgRow() {
+  urgN++; const d = document.createElement('div'); d.className = 'urg-row';
+  d.innerHTML = '<select class="ss">' + (jobOpts('-- เลือกงานด่วน --')) + '</select>' +
+    '    <button class="rm-btn" onclick="this.parentElement.remove()">✕</button>';
+  document.getElementById('urgList').appendChild(d);
+}
+function toggleDChk(k) {
+  actDrv[k] = !actDrv[k];
+  const map = { A: 'on-a', B: 'on-b', C: 'on-c' };
+  const el = document.getElementById('dchk' + k);
+  if (actDrv[k]) el.classList.add(map[k]); else el.classList.remove(map[k]);
+}
+
+async function submitRoute() {
+  const apiKey = localStorage.getItem('zunic_api_key');
+  if (!apiKey) { toast('⚠️ กรุณาตั้ง API Key ก่อน'); return; }
+  const active = Object.entries(actDrv).filter(([k, v]) => v).map(([k]) => k);
+  if (!active.length) { toast('⚠️ เลือกคนขับที่มาวันนี้อย่างน้อย 1 คน'); return; }
+  const selectedJobs = jobs.filter(j => sel.has(j.id));
+  if (!selectedJobs.length) { toast('⚠️ ยังไม่ได้ติ๊กเลือกรายการ — ติ๊กรายการที่ต้องการจัดก่อนครับ'); return; }
+  const timeslots = [];
+  document.querySelectorAll('#tsList .ts-row').forEach(row => {
+    const s = row.querySelector('select'), t = row.querySelector('input');
+    if (s.value && t.value) timeslots.push({ jobId: s.value, time: t.value, name: jobs.find(j => j.id === s.value)?.name || '' });
+  });
+  const urgent = [];
+  document.querySelectorAll('#urgList .urg-row select').forEach(s => {
+    if (s.value) urgent.push({ jobId: s.value, name: jobs.find(j => j.id === s.value)?.name || '' });
+  });
+  const note = document.getElementById('routeNote').value.trim();
+  const jobList = selectedJobs.map(j =>
+    '- [' + (j.id) + '] ' + (j.name) + ' | ' + (j.type) + ' | พื้นที่: ' + (j.area) + ' | ทิศ: ' + (j.dir) + ' | ยอด: ' + (j.amt || 0) + '฿' + (j.note ? ' | หมายเหตุ: ' + j.note : '')
+  ).join('\n');
+  const prompt = 'คุณเป็นผู้ช่วยจัดเส้นทางส่งสินค้าของบริษัท ซูนิค\n\nคนขับที่มาวันนี้: ' + active.join(', ') + '\n\nรายการงานที่ต้องจัด (' + selectedJobs.length + ' รายการ):\n' + jobList + '\n\n' +
+    (timeslots.length ? 'ลูกค้านัดเวลาเฉพาะ:\n' + timeslots.map(t => '- ' + t.name + ' -> ' + t.time).join('\n') + '\n\n' : '') +
+    (urgent.length ? 'งานด่วนต้องไปก่อน:\n' + urgent.map(u => '- ' + u.name).join('\n') + '\n\n' : '') +
+    (note ? 'หมายเหตุพิเศษ: ' + note + '\n\n' : '') +
+    'กรุณาจัดงานให้คนขับแต่ละคน โดยยึดหลัก:\n1. รวมทิศเดียวกันให้คนขับเดียวกัน\n2. กระจายทิศที่เหลือให้สมดุล\n3. นัดเวลา/ด่วน -> จัดก่อน\n4. ต่างจังหวัด -> คนขับเดียวกัน\n5. สมดุลจำนวนจุดแวะ\n\nตอบ JSON เท่านั้น:\n{"assignments":{"A":[id1,id2],"B":[id3],"C":[id4]},"reason":"สรุปเหตุผลภาษาไทย"}\n(ใส่เฉพาะคนขับที่มา: ' + active.join(', ') + ')';
+  document.getElementById('routeResult').innerHTML = '<div class="claude-loading"><div class="spinner"></div>Claude กำลังจัดเส้นทาง...</div>';
+  document.getElementById('btnGo').disabled = true;
+  document.getElementById('btnGo').textContent = '⏳ กำลังประมวลผล...';
+  try {
+    const res = await fetch('https:' + '//api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-5-20250929', max_tokens: 1000, messages: [{ role: 'user', content: prompt }] })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message || 'API Error');
+    const text = data.content?.map(c => c.text || '').join('');
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('ไม่พบ JSON ในคำตอบ');
+    const result = JSON.parse(jsonMatch[0]);
+    showRouteResult(result, active);
+  } catch (err) {
+    document.getElementById('routeResult').innerHTML = '<div style="color:var(--red);font-size:13px;padding:12px;background:rgba(255,107,107,.08);border:1px solid rgba(255,107,107,.2);border-radius:8px;margin-top:12px;">⚠️ เกิดข้อผิดพลาด: ' + err.message + '<br><span style="color:var(--text2);font-size:12px">ตรวจสอบ API Key หรือลองใหม่อีกครั้ง</span></div>';
+    document.getElementById('btnGo').disabled = false;
+    document.getElementById('btnGo').textContent = '🔄 ลองใหม่';
+  }
+}
+
+function showRouteResult(result, active) {
+  pendingRouteResult = result;
+  const asgn = result.assignments || {};
+  let preview = '<div class="result-preview">';
+  active.forEach(d => {
+    const ids = (asgn[d] || []).map(String);
+    const dc = DRIVER_COLORS[d] || 'var(--accent)';
+    preview += '<div class="result-driver-block"><div class="result-driver-title"><span style="width:24px;height:24px;background:' + dc + '22;border:1px solid ' + dc + ';border-radius:5px;display:flex;align-items:center;justify-content:center;font-weight:800;color:' + dc + ';font-size:13px">' + d + '</span>คนขับ ' + d + ' — ' + ids.length + ' จุด</div>';
+    ids.forEach((id, i) => {
+      const j = jobs.find(x => String(x.id) === id); if (!j) return;
+      const t = TYPE_STYLES[j.type] || TYPE_STYLES['อื่นๆ'];
+      preview += '<div class="result-job-row"><span style="font-family:var(--mono);font-size:10px;color:var(--text3);min-width:16px">' + (i+1) + '.</span><span style="color:' + t.c + '">' + t.i + '</span><span style="flex:1">' + j.name + '</span><span style="font-size:11px;color:var(--text2)">' + j.area + '</span></div>';
+    });
+    preview += '</div>';
+  });
+  if (result.reason) preview += '<div class="result-reason">💡 ' + result.reason + '</div>';
+  preview += '</div>';
+  document.getElementById('routeResult').innerHTML = preview;
+  document.getElementById('routeFooter').innerHTML = '<button class="btn btn-ghost" onclick="closeRoutePop()">ยกเลิก</button><button class="btn btn-ghost" onclick="openRoutePop()">🔄 จัดใหม่</button><button class="btn-go" onclick="applyRoute()">✓ ยืนยันรับผล</button>';
+}
+
+function applyRoute() {
+  if (!pendingRouteResult) return;
+  const asgn = pendingRouteResult.assignments || {};
+  sched = { A: [], B: [], C: [] };
+  Object.entries(asgn).forEach(([d, ids]) => {
+    if (sched[d] !== undefined) {
+      (ids || []).forEach(id => {
+        const sid = String(id);
+        if (jobs.find(j => String(j.id) === sid)) sched[d].push(sid);
+      });
+    }
+  });
+  pendingRouteResult = null;
+  sel.clear();
+  closeRoutePop();
+  renderJobs(); renderSched(); updateCounts(); updateAddBtn();
+  toast('✅ โหลดผลจัดเส้นทางเข้าตารางแล้ว');
+}
+
+// ── CUSTOMER AUTOCOMPLETE ─────────────────────────────
+let cfTimer = null;
+
+function cfSearch() {
+  clearTimeout(cfTimer);
+  const raw = document.getElementById('cfN').value.trim();
+  const q = raw.replace(/[\s\-_\.]/g, '').toLowerCase();
+  if (q.length < 2) { cfCloseDrop(); return; }
+  cfTimer = setTimeout(() => {
+    callGAS('lookupCustomer', { q: q }).then(results => cfRenderDrop(results, raw)).catch(() => cfCloseDrop());
+  }, 300);
+}
+
+function cfRenderDrop(results, q) {
+  const drop = document.getElementById('cfDrop');
+  let html = '';
+  if (results && results.length) {
+    html += results.map(r => `
+      <div class="cf-row-item" onclick='cfPick(${JSON.stringify(r)})'>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="font-family:var(--mono);font-size:11px;color:var(--accent);
+            background:var(--accent-bg);padding:1px 5px;border-radius:3px;">${r.code}</span>
+          <span style="font-weight:600;font-size:13px;">${r.name}</span>
+        </div>
+        <div style="font-size:11px;color:var(--text2);">📍 ${r.site||r.address||'—'} · ${r.dir||'—'}</div>
+      </div>`).join('');
+  }
+  html += `<div class="cf-row-item" style="color:var(--accent);font-weight:600;"
+    onclick="openCustModal('${q.replace(/'/g,"\\'")}')">
+    ＋ เพิ่มลูกค้าใหม่ "${q}"
+  </div>`;
+  drop.innerHTML = html;
+  drop.querySelectorAll('.cf-row-item').forEach(el => {
+    el.addEventListener('mouseenter', () => el.style.background = 'var(--surface2)');
+    el.addEventListener('mouseleave', () => el.style.background = '');
+  });
+  drop.style.display = 'block';
+}
+
+function cfPick(r) {
+  document.getElementById('cfN').value    = r.name;
+  document.getElementById('cfCode').value = r.code;
+  document.getElementById('cfA').value    = r.site || r.address || '';
+  document.getElementById('cfD').value    = r.dir || '';
+  cfCloseDrop();
+}
+
+function cfCloseDrop() {
+  document.getElementById('cfDrop').style.display = 'none';
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#customForm')) cfCloseDrop();
+});
+
+// ── CUSTOMER MODAL ────────────────────────────────────
+function openCustModal(prefillName) {
+  const name = prefillName || document.getElementById('cfN').value.trim();
+  const code = document.getElementById('cfCode').value.trim();
+  document.getElementById('cmCode').value  = code;
+  document.getElementById('cmName').value  = name;
+  document.getElementById('cmSite').value  = document.getElementById('cfA').value;
+  document.getElementById('cmDir').value   = document.getElementById('cfD').value;
+  document.getElementById('cmPhone').value = '';
+  document.getElementById('cmNote').value  = '';
+  const sub = code ? `แก้ไขข้อมูลลูกค้า "${code}"` : 'ลูกค้าใหม่ — จะบันทึกพร้อม flag "รอ approve"';
+  document.getElementById('custMdSub').textContent = sub;
+  document.getElementById('custMd').classList.add('open');
+  cfCloseDrop();
+}
+
+function closeCustMd() {
+  document.getElementById('custMd').classList.remove('open');
+}
+
+function saveCustMd() {
+  const name = document.getElementById('cmName').value.trim();
+  if (!name) { toast('⚠️ กรุณาระบุชื่อลูกค้า'); return; }
+  const data = {
+    code:    document.getElementById('cmCode').value.trim(),
+    name:    name,
+    site:    document.getElementById('cmSite').value.trim(),
+    dir:     document.getElementById('cmDir').value.trim(),
+    phone:   document.getElementById('cmPhone').value.trim(),
+    note:    document.getElementById('cmNote').value.trim()
+  };
+  callGAS('addOrUpdateCustomer', data).then(res => {
+    if (!res.success) { toast('⚠️ บันทึกไม่สำเร็จ'); return; }
+    toast(res.action === 'added' ? '✅ เพิ่มลูกค้าใหม่แล้ว (รอ approve)' : '✅ อัพเดตข้อมูลลูกค้าแล้ว');
+    document.getElementById('cfN').value    = data.name;
+    document.getElementById('cfCode').value = res.code;
+    document.getElementById('cfA').value    = data.site;
+    document.getElementById('cfD').value    = data.dir;
+    closeCustMd();
+  }).catch(() => toast('⚠️ เกิดข้อผิดพลาด'));
+}
+
+// ──────────────────────────────────────────────────────
+function toggleCustomForm() {
+  document.getElementById('customForm').classList.toggle('open');
+  const dateEl = document.getElementById('cfDate');
+  if (dateEl && !dateEl.value) dateEl.value = new Date().toISOString().slice(0,10);
+}
+async function addCustomJob() {
+  const name = document.getElementById('cfN').value.trim();
+  if (!name) { toast('⚠️ กรุณาระบุชื่อลูกค้า'); return; }
+  try {
+    const res = await callGAS('addSingleJob', {
+      name,
+      type: document.getElementById('cfT').value,
+      area: document.getElementById('cfA').value.trim() || '',
+      dir: document.getElementById('cfD').value.trim() || '',
+      amt: parseFloat(document.getElementById('cfAm').value) || 0,
+            code: document.getElementById('cfCode').value.trim() || 'CUSTOM',
+            inv: document.getElementById('cfInv').value.trim() || '-', deliveryDate: document.getElementById('cfDate').value || new Date().toISOString().slice(0,10),
+note: document.getElementById('cfNo').value.trim()
+    });
+    const id = res.id;
+    jobs.push({
+      id, code: 'CUSTOM', inv: '-', name,
+      type: document.getElementById('cfT').value,
+      area: document.getElementById('cfA').value.trim() || 'ไม่ระบุ',
+      dir: document.getElementById('cfD').value.trim() || 'ไม่ระบุ',
+      amt: parseFloat(document.getElementById('cfAm').value) || 0,
+      note: document.getElementById('cfNo').value.trim(),
+      date: todayISO, st: 'new'
+    });
+    const d = document.getElementById('cfDr').value;
+    if (d) sched[d].push(id);
+    ['cfN', 'cfCode', 'cfInv', 'cfA', 'cfAm', 'cfNo', 'cfDate'].forEach(x => document.getElementById(x).value = '');
+  document.getElementById('cfD').value = '';
+    toggleCustomForm(); renderJobs(); renderSched(); updateCounts();
+    toast('✓ เพิ่มงาน "' + (name) + '" แล้ว');
+  } catch (e) { toast('⚠️ ' + e.message); }
+}
+
+function setMainTab(t) {
+  mainTab = t; sel.clear();
+  document.getElementById('mt-del').classList.toggle('active', t === 'del');
+  document.getElementById('mt-pu').classList.toggle('active', t === 'pu');
+  document.getElementById('pDel').style.display = t === 'del' ? 'flex' : 'none';
+  document.getElementById('pPu').style.display = t === 'pu' ? 'flex' : 'none';
+  updateAddBtn();
+}
+function setSubTab(t, el) {
+  subTab = t; document.querySelectorAll('.subtab').forEach(x => x.classList.remove('active'));
+  el.classList.add('active'); renderJobs();
+}
+function setFilter(f, el) {
+  flt = f; document.querySelectorAll('.filter-chip').forEach(x => x.classList.remove('active'));
+  el.classList.add('active'); renderJobs();
+}
+function setDirFilter(d, el) {
+  dirFlt = d;
+  document.querySelectorAll('.dir-chip').forEach(x => x.classList.remove('active'));
+  el.classList.add('active');
+  renderJobs();
+}
+function setDriver(d, el) {
+  drv = d; document.querySelectorAll('.driver-tab').forEach(x => x.classList.remove('active'));
+  el.classList.add('active'); updateAddBtn(); renderSched();
+}
+function updateCounts() {
+  const c = { all: 0, new: 0, pending: 0, done: 0 };
+  jobs.forEach(j => { c.all++; c[j.st] = (c[j.st] || 0) + 1; });
+  document.getElementById('bdg-del').textContent = c.all;
+  document.getElementById('totalCount').textContent = (c.all) + ' รายการ';
+  document.getElementById('bdg-all').textContent = c.all;
+  document.getElementById('bdg-new').textContent = c.new || 0;
+  document.getElementById('bdg-pend').textContent = c.pending || 0;
+  document.getElementById('bdg-done').textContent = c.done || 0;
+}
+
+function printSheet() {
+  const total = Object.values(sched).flat().length;
+  if (!total) { toast('⚠️ ยังไม่มีรายการในตาราง'); return; }
+  const date = new Date().toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const drivers = ['A', 'B', 'C'].filter(d => sched[d].length > 0);
+
+  const qrUrls = {
+        A: 'https:' + '//script.google.com/macros/s/AKfycbzOktAmSwp0HJCPMcCxBB1HeAqdza6YI1OBkfcw4W5HL8cKAnn5VBWuaxf2QLM0nTmH/exec?page=mileage&driver=A',
+            B: 'https:' + '//script.google.com/macros/s/AKfycbzOktAmSwp0HJCPMcCxBB1HeAqdza6YI1OBkfcw4W5HL8cKAnn5VBWuaxf2QLM0nTmH/exec?page=mileage&driver=B',
+                C: 'https:' + '//script.google.com/macros/s/AKfycbzOktAmSwp0HJCPMcCxBB1HeAqdza6YI1OBkfcw4W5HL8cKAnn5VBWuaxf2QLM0nTmH/exec?page=mileage&driver=C'
+  };
+
+  let html = '<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><title>ใบงานคนขับ — ซูนิค</title>'
+    + '<link href="' + 'https:' + '//fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">'
+    + '<style>'
+    + '*{box-sizing:border-box;margin:0;padding:0;}'
+    + 'body{font-family:\'Sarabun\',sans-serif;font-size:12px;color:#1e293b;background:#f8fafc;}'
+    + '.sheet{width:210mm;padding:14mm;background:#fff;}'
+    + '.sheet + .sheet{page-break-before:always;}'
+    + '.header{display:flex;justify-content:space-between;align-items:center;background:#475569;color:#fff;padding:12px 16px;border-radius:8px;margin-bottom:12px;}'
+    + '.hd-left{display:flex;align-items:center;gap:10px;}'
+    + '.drv-badge{width:40px;height:40px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;flex-shrink:0;}'
+    + '.drv-title{font-size:15px;font-weight:800;color:#fff;}'
+    + '.drv-date{font-size:11px;opacity:.8;margin-top:2px;}'
+    + '.qr-wrap{width:62px;height:62px;background:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}'
+    + '.stats{display:flex;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;margin-bottom:12px;align-items:center;}'
+    + '.stat{flex:1;padding:8px 10px;text-align:center;border-right:1px solid #e2e8f0;}'
+    + '.stat:last-child{border-right:none;}'
+    + '.stat-v{font-size:16px;font-weight:800;}'
+    + '.stat-l{font-size:10px;color:#64748b;margin-top:2px;}'
+    + '.mile-stat{flex:2;padding:8px 16px;display:flex;align-items:center;gap:10px;}'
+    + '.mile-label{font-size:11px;color:#64748b;white-space:nowrap;}'
+    + '.mile-line{flex:1;border-bottom:1.5px solid #475569;}'
+    + 'table{width:100%;border-collapse:collapse;table-layout:fixed;}'
+    + 'th{background:#e2e8f0;color:#475569;padding:6px 8px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;}'
+    + 'td{padding:7px 8px;border-bottom:1px solid #f1f5f9;font-size:11px;vertical-align:middle;}'
+    + '.grp-first td{border-top:1.5px solid #e2e8f0;}'
+    + '.grp-sub td{background:#fafbfc;}'
+    + '.type-badge{display:inline-block;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:700;}'
+    + '.note-cell{font-size:10px;color:#dc2626;font-style:italic;}'
+    + '.cb{display:inline-block;width:13px;height:13px;border:1.5px solid #94a3b8;border-radius:2px;}'
+    + '.no-print{position:fixed;top:0;left:0;right:0;background:#1c1917;padding:10px 20px;display:flex;align-items:center;gap:10px;z-index:999;}'
+    + '.no-print span{color:#a09890;font-size:13px;flex:1;}'
+    + '.btn-p{padding:8px 18px;border-radius:7px;font-size:14px;font-weight:700;cursor:pointer;border:none;font-family:Sarabun,sans-serif;}'
+    + '.btn-print{background:#9b6a3e;color:#fff;}'
+    + '.btn-xl{background:#1a7a4a;color:#fff;}'
+    + '.btn-close{background:transparent;color:#a09890;border:1px solid #444 !important;}'
+    + 'body{padding-top:52px;}'
+    + '@media print{body{background:#fff;padding-top:0;}.sheet{padding:10mm 12mm 8mm;}.no-print{display:none !important;}}'
+    + '</style></head><body>';
+
+  drivers.forEach(d => {
+    const ids = sched[d];
+    const docs = new Set();
+    ids.forEach(id => { const j = jobs.find(x => x.id === id); if(j && j.inv && j.inv !== '-') docs.add(j.inv); });
+
+    const dColor = { A: '#2563eb', B: '#059669', C: '#d97706' }[d] || '#444';
+
+    const qrUrl = encodeURIComponent(qrUrls[d] || '');
+    const qrImg = 'https:' + '//api.qrserver.com/v1/create-qr-code/?size=72x72&data=' + qrUrl;
+
+    // Group jobs by customer+type
+    const grouped = [];
+    let custNum = 0;
+    const seen = {};
+    ids.forEach(id => {
+      const j = jobs.find(x => x.id === id); if(!j) return;
+      const custKey = j.name;
+      const typeKey = j.name + '|' + j.type;
+      if(!seen[custKey]) { custNum++; seen[custKey] = custNum; }
+      const existing = grouped.find(g => g.typeKey === typeKey);
+      if(existing) {
+        existing.jobs.push(j);
+        existing.totalAmt += j.amt || 0;
+        if(j.inv && j.inv !== '-') existing.invs.push(j.inv);
+      } else {
+        grouped.push({
+          custNum: seen[custKey],
+          isFirst: !grouped.find(g => g.custKey === custKey),
+          custKey, typeKey,
+          name: j.name, type: j.type, area: j.area||'—', note: j.note||'',
+          jobs: [j],
+          invs: (j.inv && j.inv !== '-') ? [j.inv] : [],
+          totalAmt: j.amt || 0
+        });
+      }
+    });
+
+    html += `<div class="sheet">
+  <div class="header">
+    <div class="hd-left">
+      <div class="drv-badge" style="background:${dColor}">${DRV_NAME[d]}</div>
+      <div>
+        <div class="drv-title">ใบงานคนขับ ${DRV_NAME[d]}</div>
+        <div class="drv-date">${date} · 09:30–15:00</div>
+      </div>
+    </div>
+    <div class="qr-wrap">
+      <img src="${qrImg}" width="72" height="72" style="border-radius:4px;">
+    </div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-v">${ids.length}</div><div class="stat-l">จุดแวะ</div></div>
+    <div class="stat"><div class="stat-v">${docs.size}</div><div class="stat-l">เอกสารรวม</div></div>
+    <div class="mile-stat">
+      <div class="mile-label">กม.ออก</div>
+      <div class="mile-line"></div>
+    </div>
+  </div>
+  <table>
+    <thead><tr>
+      <th style="width:18px;"></th>
+      <th style="width:22px;">#</th>
+      <th>ชื่อลูกค้า</th>
+      <th style="width:75px;">ประเภทงาน</th>
+      <th style="width:110px;">เลขที่เอกสาร</th>
+      <th style="width:80px;">จำนวน/ยอดรวม</th>
+      <th style="width:50px;">พื้นที่</th>
+      <th style="width:65px;">หมายเหตุ</th>
+    </tr></thead>
+    <tbody>`;
+
+    grouped.forEach((g, i) => {
+      const tStyle = {
+        'ส่งสินค้า':'background:#dbeafe;color:#1d4ed8',
+        'วางบิล':'background:#fef3c7;color:#92400e',
+        'รับเช็ค':'background:#d1fae5;color:#065f46',
+        'ส่งเอกสาร':'background:#ede9fe;color:#5b21b6'
+      }[g.type] || 'background:#f3f4f6;color:#374151';
+      const ts = TS[g.type] || TS['อื่นๆ'];
+      const rowClass = g.isFirst ? 'grp-first' : 'grp-sub';
+      const invStr = g.invs.join(', ') || '—';
+      const amtStr = g.totalAmt ? g.totalAmt.toLocaleString() : '—';
+      const custNumStr = g.isFirst ? g.custNum : '';
+      const nameStyle = g.isFirst ? 'font-weight:600' : 'color:#64748b';
+      html += `<tr class="${rowClass}">
+        <td><span class="cb"></span></td>
+        <td style="color:#475569;font-weight:700;">${custNumStr}</td>
+        <td style="${nameStyle}">${g.name}</td>
+        <td><span class="type-badge" style="${tStyle}">${ts.i} ${g.type}</span></td>
+        <td style="font-family:monospace;font-size:10px;">${invStr}</td>
+        <td style="text-align:center;">${g.jobs.length} / ${amtStr}</td>
+        <td>${g.area}</td>
+        <td class="note-cell">${g.note}</td>
+      </tr>`;
+    });
+
+        html += '<tr style="height:22px"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr style="height:22px"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr style="height:22px"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr style="height:22px"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr style="height:22px"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr style="height:22px"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr style="height:22px"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr style="height:22px"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr></tbody></table><div style="display:flex;justify-content:flex-end;margin-top:10px;"><div style="text-align:center;"><div style="font-size:9px;color:#64748b;margin-bottom:3px;">&#x26FD; &#xE40;&#xE15;&#xE34;&#xE21;&#xE19;&#xE49;&#xE33;&#xE21;&#xE31;&#xE19;</div><img src="' + ('https:' + '//api.qrserver.com/v1/create-qr-code/?size=72x72&data=' + encodeURIComponent('https:' + '//script.google.com/macros/s/AKfycbzOktAmSwp0HJCPMcCxBB1HeAqdza6YI1OBkfcw4W5HL8cKAnn5VBWuaxf2QLM0nTmH/exec?page=fuel&driver=' + d)) + '" width="72" height="72" style="border-radius:4px;border:1px solid #e2e8f0;"></div></div></div>';
+  });
+
+  html += '<div class="no-print">'
+    + '<span>ใบงานคนขับ — ซูนิค</span>'
+    + '<button class="btn-p btn-xl" onclick="downloadXlsx()">📥 ดาวน์โหลด .xlsx</button>'
+    + '<button class="btn-p btn-print" onclick="window.print()">🖨️ พิมพ์</button>'
+    + '<button class="btn-p btn-close" onclick="window.parent.postMessage(\'closeFrame\',\'*\')">✕ ปิด</button>'
+    + '</div>'
+    + '<div style="height:52px"></div>'
+    + '<script>'
+    + 'function downloadXlsx(){'
+    + '  const d = window._schedDate || new Date().toISOString().slice(0,10);'
+    + '  window.parent.postMessage({type:\'downloadXlsx\',date:d},\'*\');'
+    + '  const btn = document.querySelector(\'.btn-xl\');'
+    + '  btn.textContent = \'⏳ กำลังสร้าง...\';'
+    + '  btn.disabled = true;'
+    + '  setTimeout(()=>{ btn.textContent = \'📥 ดาวน์โหลด .xlsx\'; btn.disabled = false; }, 35000);'
+    + '}'
+    + '<\/script>'
+    + '</body></html>';
+  let pf = document.getElementById('_printFrame');
+      if (!pf) {
+            pf = document.createElement('iframe');
+                  pf.id = '_printFrame';
+                        pf.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;border:none;z-index:9999;';
+                              document.body.appendChild(pf);
+                                  }
+                                      pf.style.display = 'block';
+                                          pf.srcdoc = html;
+}
+
+function downloadDriverXlsx() {
+  const date = document.getElementById('schedDate').value;
+  if (!date) { toast('⚠️ กรุณาเลือกวันที่ก่อน'); return; }
+  const total = Object.values(sched).flat().length;
+  if (!total) { toast('⚠️ ยังไม่มีรายการในตาราง'); return; }
+  toast('⏳ กำลังสร้างไฟล์ xlsx...');
+  callGAS('generateDriverXlsx', { date: date }).then(function(result) {
+    if (result && result.url) {
+      window.open(result.url, '_blank');
+      toast('✅ ดาวน์โหลดเสร็จแล้ว — ' + result.filename);
+    } else {
+      toast('❌ ไม่สามารถสร้างไฟล์ได้');
+    }
+  }).catch(function(err) {
+    toast('❌ เกิดข้อผิดพลาด: ' + (err.message || err));
+  });
+}
+
+function openSettings() { document.getElementById('settingsBd') && document.getElementById('settingsBd').classList.add('open'); }
+function closeSettings() { document.getElementById('settingsBd') && document.getElementById('settingsBd').classList.remove('open'); }
+function saveApiKey() {
+  const key = document.getElementById('apiKeyInput') && document.getElementById('apiKeyInput').value.trim();
+  if (key) localStorage.setItem('zunic_api_key', key);
+  else localStorage.removeItem('zunic_api_key');
+  closeSettings();
+  toast(key ? '🔑 บันทึก API Key แล้ว' : '🔑 ลบ API Key แล้ว');
+}
+
+function openImportModal() {
+  var today = new Date();
+  var yyyy = today.getFullYear();
+  var mm = String(today.getMonth()+1).padStart(2, '0');
+  var dd = String(today.getDate()).padStart(2, '0');
+  document.getElementById('importDate').value = yyyy + '-' + mm + '-' + dd;
+  document.getElementById('importFileId').value = '';
+  document.getElementById('importPreview').style.display = 'none';
+  document.getElementById('importError').style.display = 'none';
+  document.getElementById('btnConfirmImport').style.display = 'none';
+  document.getElementById('importBd').classList.add('open');
+  document.getElementById('importPopup').style.display = 'block';
+  var sel = document.getElementById('importFileId');
+  sel.innerHTML = '<option value="">⏳ กำลังโหลดรายการไฟล์...</option>';
+  sel.disabled = true;
+  callGAS('listDriveFiles', { folderId: '10vFv3clCXdxS_z8Sy-j5wO0-HK5P7hWz' })
+    .then(function(files) {
+      sel.disabled = false;
+      if (!files || files.length === 0) { sel.innerHTML = '<option value="">ไม่พบไฟล์ .xls/.xlsx</option>'; return; }
+      sel.innerHTML = '<option value="">-- เลือกไฟล์ --</option>';
+      files.forEach(function(f) { var opt = document.createElement('option'); opt.value = f.id; opt.textContent = f.name; sel.appendChild(opt); });
+      if (files.length === 1) sel.value = files[0].id;
+    })
+    .catch(function(err) { sel.disabled = false; sel.innerHTML = '<option value="">Error: ' + err.message + '</option>'; });
+}
+function closeImportModal() { document.getElementById('importBd').classList.remove('open'); document.getElementById('importPopup').style.display = 'none'; }
+function showImportError(msg) { var errorDiv = document.getElementById('importError'); errorDiv.textContent = '❌ ' + msg; errorDiv.style.display = 'block'; }
+function callImportAPI(fileId, targetDate, dryRun) {
+  return callGAS('importFromExcel', { fileId: fileId, date: targetDate, dryRun: dryRun });
+}
+function runImportPreview() {
+  var fileId = document.getElementById('importFileId').value.trim();
+  var date   = document.getElementById('importDate').value;
+  if (!fileId) { showImportError('กรุณาเลือกไฟล์จาก Z doc flow'); return; }
+  if (!date)   { showImportError('กรุณาเลือกวันที่'); return; }
+  var previewDiv = document.getElementById('importPreview');
+  var errorDiv   = document.getElementById('importError');
+  var btnPreview = document.getElementById('btnPreview');
+  var btnConfirm = document.getElementById('btnConfirmImport');
+  errorDiv.style.display = 'none';
+  previewDiv.style.display = 'block';
+  previewDiv.innerHTML = '⏳ กำลังโหลดข้อมูล...';
+  btnPreview.disabled = true;
+  btnConfirm.style.display = 'none';
+  callGAS('previewImport', { fileId: fileId, date: date }).then(function(d) {
+    btnPreview.disabled = false;
+    var res = { ok: true };
+    var html = '<div>✅ จะเพิ่ม <strong>' + d.inserted + ' ใบ</strong>';
+    if (d.totalItems) html += ' (' + d.totalItems + ' รายการ)';
+    html += '</div>';
+    if (d.skipped > 0) html += '<div>⏭ ข้าม <strong>' + d.skipped + ' ใบ</strong></div>';
+    if (d.notInMaster && d.notInMaster.length > 0) html += '<div style="color:#c07000">⚠️ รหัสไม่พบ: <strong>' + d.notInMaster.join(', ') + '</strong></div>';
+    if (!d.inserted && !d.skipped) html += '<div>ไม่พบข้อมูล</div>';
+    previewDiv.innerHTML = html;
+    if (d.inserted > 0) btnConfirm.style.display = 'inline-block';
+  }).catch(function(err) { btnPreview.disabled = false; showImportError(err.message || JSON.stringify(err)); previewDiv.style.display = 'none'; });
+}
+function runImportConfirm() {
+  var fileId = document.getElementById('importFileId').value.trim();
+  var date   = document.getElementById('importDate').value;
+  var btnConfirm = document.getElementById('btnConfirmImport');
+  var previewDiv = document.getElementById('importPreview');
+  btnConfirm.disabled = true;
+  btnConfirm.textContent = '⏳ กำลัง Import...';
+  previewDiv.innerHTML = '⏳ กำลังบันทึก กรุณารอสักครู่...<br><small>ระบบจะ reload อัตโนมัติเมื่อเสร็จ</small>';
+  callImportAPI(fileId, date, false).then(function(res) {
+    if (!res.ok) { 
+      btnConfirm.disabled = false;
+      btnConfirm.textContent = '✅ นำเข้า';
+      showImportError(res.error || 'error');
+      return;
+    }
+    var d = res.data;
+    previewDiv.innerHTML = '🎉 สำเร็จ! เพิ่ม <strong>' + d.inserted + ' ใบ</strong>';
+    btnConfirm.style.display = 'none';
+    setTimeout(function() { closeImportModal(); location.reload(); }, 1500);
+  }).catch(function(err) {
+    btnConfirm.disabled = false;
+    btnConfirm.textContent = '✅ นำเข้า';
+    showImportError(err.message || JSON.stringify(err));
+  });
+}
+
+document.addEventListener('click', function(e) {
+  var action = e.target.closest('[data-action]');
+  if (!action) return;
+  var act = action.getAttribute('data-action');
+  if (act === 'openImportModal')  openImportModal();
+  if (act === 'closeImportModal') closeImportModal();
+  if (act === 'runImportPreview') runImportPreview();
+  if (act === 'runImportConfirm') runImportConfirm();
+});
+
+window.addEventListener('beforeunload', function(e) {
+  if (!schedSaved) { e.preventDefault(); e.returnValue = 'ตารางยังไม่ได้บันทึก — ต้องการออกจากหน้านี้?'; }
+});
+window.addEventListener('message', e => {
+  if(e.data && e.data.type === 'downloadXlsx') downloadDriverXlsx(e.data.date);
+  if(e.data === 'closeFrame' || (e.data && e.data.type === 'closeFrame')) {
+    const pf = document.getElementById('_printFrame');
+    if(pf) pf.style.display = 'none';
+  }
+});
+
+const TS={
+  'ส่งสินค้า':{c:'#5b9cff',bg:'rgba(91,156,255,.15)',i:'📦'},
+  'วางบิล':  {c:'#fba84a',bg:'rgba(251,168,74,.15)', i:'🧾'},
+  'รับเช็ค': {c:'#35e0aa',bg:'rgba(53,224,170,.15)', i:'✅'},
+  'ส่งเอกสาร':{c:'#a78bfa',bg:'rgba(167,139,250,.15)',i:'📄'},
+  'จ่ายบิล': {c:'#ff6b6b',bg:'rgba(255,107,107,.15)', i:'💳'},
+  'รับของ':  {c:'#fce066',bg:'rgba(252,224,102,.15)', i:'📥'},
+  'อื่นๆ':   {c:'#9da8cc',bg:'rgba(157,168,204,.15)', i:'➕'},
+};
+const DC={
+  'เหนือ':'#5b9cff','ใต้':'#fba84a','ตะวันตก':'#35e0aa',
+  'ตะวันออก':'#fce066','กลาง':'#a78bfa','ไม่มีข้อมูล':'#9da8cc'
+};
+const TYPE_STYLES = TS;
+const DIR_COLORS = DC;
+const DRIVER_COLORS = { A: 'var(--accent)', B: 'var(--green)', C: 'var(--orange)' };
+const DRV_NAME = { A: 'O', B: 'M', C: 'N' };
+function fmtAmt(n) { return (n || 0).toLocaleString(); }
+
+let confirmCallback = null;
+function confirmDlg(msg, onOk) {
+  confirmCallback = onOk;
+  document.getElementById('confirmMsg').textContent = msg;
+  document.getElementById('confirmOkBtn').onclick = () => { const cb = confirmCallback; closeConfirmDlg(); cb && cb(); };
+  document.getElementById('confirmDlg').classList.add('open');
+}
+function closeConfirmDlg() { document.getElementById('confirmDlg').classList.remove('open'); confirmCallback = null; }
+function toast(msg) {
+  const t = document.getElementById('toastEl');
+  t.textContent = msg; t.classList.add('on');
+  clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('on'), 3000);
+}
+</script>
+
+<!-- IMPORT MODAL -->
+<div class="modal-bd" id="importBd">
+  <div class="modal" id="importPopup" style="max-width:480px;width:95%;">
+    <div class="modal-title">📥 นำเข้าข้อมูลจาก Excel</div>
+    <div class="modal-sub">เลือกไฟล์ .xls/.xlsx จาก Z doc flow แล้วกดดูตัวอย่าง</div>
+    <div style="margin-top:14px;">
+      <label style="font-size:13px;color:var(--text2);display:block;margin-bottom:6px;">ไฟล์ Excel</label>
+      <select id="importFileId" style="width:100%;padding:8px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:14px;font-family:var(--sans);">
+        <option value="">กำลังโหลดไฟล์...</option>
+      </select>
+    </div>
+    <div style="margin-top:12px;">
+      <label style="font-size:13px;color:var(--text2);display:block;margin-bottom:6px;">วันที่นำเข้า</label>
+      <input type="date" id="importDate" style="width:100%;padding:8px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:14px;font-family:var(--sans);">
+    </div>
+    <div id="importError" style="display:none;margin-top:10px;padding:10px 14px;background:rgba(255,107,107,.1);border:1px solid var(--red);border-radius:8px;color:var(--red);font-size:13px;"></div>
+    <div id="importPreview" style="display:none;margin-top:12px;"></div>
+    <div class="modal-footer" style="margin-top:16px;">
+      <button class="btn btn-ghost" style="flex:1;" onclick="closeImportModal()">ยกเลิก</button>
+      <button class="btn btn-ghost" id="btnPreview" style="flex:1;" onclick="runImportPreview()">👁 ดูตัวอย่าง</button>
+      <button class="btn btn-primary" id="btnConfirmImport" style="flex:1;display:none;" onclick="runImportConfirm()">✅ นำเข้า</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
