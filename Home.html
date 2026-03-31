@@ -253,7 +253,7 @@ function doLogin() {
   var p = document.getElementById('inputPass').value;
   if (!u || !p) { showErr('กรุณากรอกชื่อผู้ใช้และรหัสผ่าน'); return; }
   setBusy(true);
-  callGAS('login', { u: u, p: p })
+  callGAS('login', { username: u, password: p })
     .then(function(res) {
       setBusy(false);
       if (res && res.ok) { saveSession(res); showHome(res); }
