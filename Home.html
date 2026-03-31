@@ -237,9 +237,12 @@ var ROLE_DEFAULTS = {
 };
 
 function pageUrl(key) {
-  if (key.indexOf('mileage_') === 0) return BASE_URL + '?page=mileage&driver=' + key.slice(8);
-  if (key.indexOf('fuel_')    === 0) return BASE_URL + '?page=fuel&driver='    + key.slice(5);
-  return BASE_URL + '?page=' + key;
+  if (key.indexOf('mileage_') === 0) return BASE_URL + '/MileageUpload.html?driver=' + key.slice(8);
+  if (key.indexOf('fuel_')    === 0) return BASE_URL + '/FuelUpload.html?driver=' + key.slice(5);
+  if (key === 'jobboard')  return BASE_URL + '/JobBoard.html';
+  if (key === 'return')    return BASE_URL + '/ReturnJobs.html';
+  if (key === 'dashboard') return BASE_URL + '/Dashboard.html';
+  return BASE_URL + '/' + key + '.html';
 }
 
 // ── SESSION ───────────────────────────────────────────────────────────────────
