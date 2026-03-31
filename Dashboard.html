@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+
+<html lang="th">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Dashboard – ซูนิค</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Sarabun',sans-serif;}
+
+body{font-size:16px;font-family:'Sarabun',sans-serif;}
+
+body{background:#f8f6f0;color:#1e293b;min-height:100vh;}
+
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:#fff;border-bottom:1px solid #e8e0d0;position:sticky;top:0;z-index:10;}
+
+.logo{font-size:15px;font-weight:700;color:#1e293b;letter-spacing:.5px;}
+
+.logo span{color:#c17f3a;}
+
+.nav{display:flex;gap:2px;background:#f0ece4;border-radius:10px;padding:3px;}
+
+.nav-item{padding:6px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;color:#64748b;border:none;background:transparent;}
+
+.nav-item.active{background:#fff;color:#1e293b;border:1px solid #e8e0d0;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+
+.tab{display:none;padding:14px 20px;}
+
+.tab.active{display:block;}
+
+.filter-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;padding:10px 14px;background:#fff;border-radius:10px;border:1px solid #e8e0d0;}
+
+.nav-btn{width:28px;height:28px;border-radius:7px;border:1px solid #d4c9b8;background:#f8f6f0;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;color:#475569;}
+
+.nav-btn:hover{background:#f0ece4;}
+
+.nav-btn:disabled{opacity:.3;cursor:default;}
+
+.period-lbl{font-size:13px;font-weight:700;min-width:150px;text-align:center;color:#1e293b;}
+
+select{padding:5px 10px;border-radius:7px;border:1px solid #d4c9b8;background:#f8f6f0;font-size:12px;color:#1e293b;cursor:pointer;}
+
+.drv-pills{display:flex;gap:4px;margin-left:4px;}
+
+.dp{width:28px;height:28px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;border:1px solid #d4c9b8;color:#64748b;background:#f8f6f0;}
+
+.dp.on-a{background:#dbeafe;border-color:#93c5fd;color:#1e40af;}
+
+.dp.on-b{background:#dcfce7;border-color:#86efac;color:#166534;}
+
+.dp.on-c{background:#fef9c3;border-color:#fde047;color:#854d0e;}
+
+.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:12px;}
+
+.stat-card{background:#fff;border-radius:10px;padding:14px 16px;border:1px solid #e8e0d0;}
+
+.stat-label{font-size:10px;color:#92816a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+
+.stat-val{font-size:22px;font-weight:700;color:#1e293b;}
+
+.stat-unit{font-size:11px;color:#a89880;margin-top:1px;}
+
+.drv-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:12px;}
+
+.drv-card{background:#fff;border-radius:10px;padding:14px 16px;border:1px solid #e8e0d0;}
+
+.drv-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+
+.badge{width:30px;height:30px;border-radius:7px;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+.ba{background:#dbeafe;color:#1e40af;}
+
+.bb{background:#dcfce7;color:#166534;}
+
+.bc{background:#fef9c3;color:#854d0e;}
+
+.drv-name{font-size:13px;font-weight:700;color:#1e293b;}
+
+.drv-plate{font-size:11px;color:#92816a;}
+
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;}
+
+.kpi{background:#f8f6f0;border-radius:7px;padding:7px 9px;}
+
+.kpi-label{font-size:9px;color:#a89880;margin-bottom:2px;}
+
+.kpi-val{font-size:14px;font-weight:700;color:#1e293b;}
+
+.kpi-unit{font-size:9px;color:#a89880;}
+
+.divider{height:1px;background:#f0ece4;margin:7px 0;}
+
+.fuel-row{display:flex;justify-content:space-between;font-size:11px;color:#92816a;margin-top:3px;}
+
+.fuel-val{color:#1e293b;font-weight:600;}
+
+.card{background:#fff;border-radius:10px;padding:14px 18px;margin-bottom:12px;border:1px solid #e8e0d0;}
+
+.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+
+.card-title{font-size:13px;font-weight:700;color:#1e293b;}
+
+.tg-group{display:flex;border:1px solid #d4c9b8;border-radius:7px;overflow:hidden;}
+
+.tg{padding:4px 11px;font-size:11px;font-weight:600;cursor:pointer;background:#f8f6f0;color:#64748b;border:none;}
+
+.tg.active{background:#c17f3a;color:#fff;}
+
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+
+.bar-label{width:64px;font-size:11px;color:#64748b;}
+
+.bar-track{flex:1;height:9px;background:#f0ece4;border-radius:4px;overflow:hidden;}
+
+.bar-fill{height:100%;border-radius:4px;}
+
+.good{color:#166534;} .warn{color:#991b1b;}
+
+.chart-ctrl{display:flex;align-items:center;gap:6px;margin-bottom:10px;}
+
+.chart-area{position:relative;height:150px;margin-bottom:2px;}
+
+.y-lines{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none;}
+
+.y-line{width:100%;height:1px;background:#f0ece4;}
+
+.y-labels{position:absolute;left:0;top:0;height:100%;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none;}
+
+.y-lbl{font-size:9px;color:#a89880;line-height:1;transform:translateY(-50%);}
+
+.bars-wrap{position:absolute;left:34px;right:0;top:0;bottom:0;display:flex;align-items:flex-end;gap:3px;}
+
+.grp{display:flex;gap:1px;align-items:flex-end;flex:1;}
+
+.b{border-radius:2px 2px 0 0;min-width:5px;}
+
+.ba-b{background:#60a5fa;} .bb-b{background:#4ade80;} .bc-b{background:#facc15;}
+
+.x-labels{display:flex;margin-left:34px;gap:3px;margin-bottom:10px;}
+
+.x-lbl{flex:1;font-size:9px;color:#a89880;text-align:center;overflow:hidden;white-space:nowrap;}
+
+.leg-row{display:flex;gap:10px;margin-bottom:8px;}
+
+.leg{display:flex;align-items:center;gap:4px;font-size:10px;color:#64748b;}
+
+.leg-dot{width:8px;height:8px;border-radius:2px;}
+
+.eff-item{display:grid;grid-template-columns:90px 1fr 70px 80px;align-items:center;gap:8px;padding:7px 10px;background:#f8f6f0;border-radius:7px;margin-bottom:5px;font-size:11px;}
+
+.eff-fill{height:6px;background:#e8e0d0;border-radius:3px;overflow:hidden;}
+
+.eff-fill-in{height:100%;border-radius:3px;}
+
+.eff-val{font-weight:700;text-align:right;}
+
+.eff-sub{font-size:9px;color:#a89880;text-align:right;}
+
+table{width:100%;border-collapse:collapse;font-size:11px;}
+
+th{text-align:left;padding:6px 7px;border-bottom:1px solid #e8e0d0;font-size:10px;font-weight:700;color:#92816a;background:#f8f6f0;}
+
+td{padding:6px 7px;border-bottom:1px solid #f0ece4;color:#1e293b;}
+
+tr:last-child td{border-bottom:none;}
+
+.mb{width:20px;height:20px;border-radius:4px;font-size:9px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;}
+
+.empty{text-align:center;padding:20px;color:#a89880;font-size:12px;}
+
+.empty-state{text-align:center;padding:60px;color:#a89880;}
+
+@media(max-width:600px){.stat-grid{grid-template-columns:1fr 1fr;}.drv-grid{grid-template-columns:1fr;}.eff-item{grid-template-columns:80px 1fr 60px;}}
+
+</style>
+
+<script src="config.js"></script>
+
+</head>
+
+<body>
+
+<div class="topbar">
+
+  <div class="logo">ZU<span>NIC</span> · Dashboard</div>
+
+  <div class="nav">
+
+    <button class="nav-item active" onclick="showTab('fuel',this)">⛽ น้ำมัน &amp; ไมล์</button>
+
+    <button class="nav-item" onclick="showTab('delivery',this)">🚚 งานส่งของ</button>
+
+  </div>
+
+</div>
+
+<div class="tab active" id="tab-fuel">
+
+  <div class="filter-bar">
+
+    <button class="nav-btn" id="btnPrev" onclick="navigate(1)">&#8592;</button>
+
+    <div class="period-lbl" id="periodLbl">—</div>
+
+    <button class="nav-btn" id="btnNext" onclick="navigate(-1)">&#8594;</button>
+
+    <select id="modeSelect" onchange="setMode(this.value)">
+
+      <option value="day">รายวัน</option>
+
+      <option value="week">รายสัปดาห์</option>
+
+      <option value="month" selected>รายเดือน</option>
+
+    </select>
+
+    <div class="drv-pills">
+
+      <div class="dp on-a" data-drv="A" onclick="toggleDrv(this)">O</div>
+
+      <div class="dp on-b" data-drv="B" onclick="toggleDrv(this)">M</div>
+
+      <div class="dp on-c" data-drv="C" onclick="toggleDrv(this)">N</div>
+
+    </div>
+
+    <div style="font-size:11px;color:#a89880;" id="filterSub"></div>
+
+  </div>
+
+  <div class="stat-grid">
+
+    <div class="stat-card"><div class="stat-label">ระยะทางรวม</div><div class="stat-val" id="s-km">—</div><div class="stat-unit">กม.</div></div>
+
+    <div class="stat-card"><div class="stat-label">ลิตรรวม</div><div class="stat-val" id="s-liters">—</div><div class="stat-unit">ลิตร</div></div>
+
+    <div class="stat-card"><div class="stat-label">ค่าน้ำมันรวม</div><div class="stat-val" id="s-amount">—</div><div class="stat-unit">บาท</div></div>
+
+    <div class="stat-card"><div class="stat-label">กม./ลิตร เฉลี่ย</div><div class="stat-val" id="s-kpl">—</div><div class="stat-unit">กม./ลิตร</div></div>
+
+  </div>
+
+  <div class="drv-grid" id="drvCards"><div class="empty">⏳ กำลังโหลด...</div></div>
+
+  <div class="card">
+
+    <div class="card-head">
+
+      <div class="card-title">เปรียบเทียบประสิทธิภาพ</div>
+
+      <div class="tg-group">
+
+        <button class="tg active" onclick="setBarMetric('kpl',this)">กม./ลิตร</button>
+
+        <button class="tg" onclick="setBarMetric('kpb',this)">กม./บาท</button>
+
+        <button class="tg" onclick="setBarMetric('kpd',this)">กม./วัน</button>
+
+      </div>
+
+    </div>
+
+    <div id="barArea"><div class="empty">⏳ กำลังโหลด...</div></div>
+
+    <div style="font-size:10px;color:#a89880;margin-top:6px;" id="barNote"></div>
+
+  </div>
+
+  <div class="card">
+
+    <div class="card-head">
+
+      <div class="card-title">ข้อมูลย้อนหลัง</div>
+
+      <div class="tg-group">
+
+        <button class="tg active" onclick="setChartMetric('fuel',this)">น้ำมัน (ล.)</button>
+
+        <button class="tg" onclick="setChartMetric('km',this)">ระยะทาง</button>
+
+        <button class="tg" onclick="setChartMetric('kpl',this)">กม./ลิตร</button>
+
+      </div>
+
+    </div>
+
+    <div class="leg-row">
+
+      <div class="leg"><div class="leg-dot" style="background:#60a5fa;"></div>คนขับ O</div>
+
+      <div class="leg"><div class="leg-dot" style="background:#4ade80;"></div>คนขับ M</div>
+
+      <div class="leg"><div class="leg-dot" style="background:#facc15;"></div>คนขับ N</div>
+
+    </div>
+
+    <div class="chart-ctrl">
+
+      <button class="nav-btn" id="cPrev" onclick="chartNav(-1)">&#8592;</button>
+
+      <div style="font-size:11px;font-weight:700;min-width:140px;text-align:center;color:#1e293b;" id="cPeriod">—</div>
+
+      <button class="nav-btn" id="cNext" onclick="chartNav(1)">&#8594;</button>
+
+    </div>
+
+    <div class="chart-area"><div class="y-lines" id="yLines"></div><div class="y-labels" id="yLabels"></div><div class="bars-wrap" id="barsWrap"></div></div>
+
+    <div class="x-labels" id="xLabels"></div>
+
+  </div>
+
+  <div class="card">
+
+    <div class="card-title" style="margin-bottom:10px;">รายการล่าสุด</div>
+
+    <table>
+
+      <thead><tr><th>วันที่</th><th>คนขับ</th><th>ปั๊ม</th><th>กม.วิ่ง</th><th>ลิตร</th><th>ยอด (฿)</th><th>฿/ล.</th><th>กม./ล.</th><th>กม./฿</th></tr></thead>
+
+      <tbody id="mainTable"><tr><td colspan="9" class="empty">⏳ กำลังโหลด...</td></tr></tbody>
+
+    </table>
+
+  </div>
+
+
+
+  <div class="card">
+
+    <div class="card-head">
+
+      <div class="card-title">ระยะทางต่อการเติม 1 ครั้ง</div>
+
+      <div class="tg-group">
+
+        <button class="tg active" onclick="setEffDrv('all',this)">ทั้งหมด</button>
+
+        <button class="tg" onclick="setEffDrv('A',this)">A</button>
+
+        <button class="tg" onclick="setEffDrv('B',this)">B</button>
+
+        <button class="tg" onclick="setEffDrv('C',this)">C</button>
+
+      </div>
+
+    </div>
+
+    <div style="font-size:11px;color:#a89880;margin-bottom:10px;">กม.ที่วิ่งได้จากน้ำมัน 1 ถัง (fill-to-fill) · สีแดง = ต่ำกว่าเป้า 7.0 กม./ล.</div>
+
+    <div class="chart-ctrl">
+
+      <button class="nav-btn" id="ePrev" onclick="effNav(-1)">&#8592;</button>
+
+      <div style="font-size:12px;font-weight:600;min-width:120px;text-align:center;" id="effPage">—</div>
+
+      <button class="nav-btn" id="eNext" onclick="effNav(1)">&#8594;</button>
+
+    </div>
+
+    <div id="effList"><div class="empty">⏳ กำลังโหลด...</div></div>
+
+  </div>
+
+  </div>
+
+
+
+<div class="tab" id="tab-delivery">
+
+  <div class="empty-state">
+
+    <p style="font-size:32px;margin-bottom:12px;">🚚</p>
+
+    <p style="font-size:14px;font-weight:600;">Tab งานส่งของ — กำลังพัฒนา</p>
+
+  </div>
+
+</div>
+
+<script>
+
+var RAW=null,mode='month',offset=0,activeDrv={A:true,B:true,C:true},barMetric='kpl',chartMetric='fuel',chartOffset=0,effDrv='all',effOffset=0,EFF_PAGE_SIZE=10;
+
+var BADGE={A:'ba',B:'bb',C:'bc'},DRV_NAME={A:'O',B:'M',C:'N'},COLORS={A:'#60a5fa',B:'#4ade80',C:'#facc15'};
+
+var MONTHS=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+
+function fmt(n,d){return(n==null||isNaN(n))?'\u2014':Number(n).toLocaleString('th',{minimumFractionDigits:d||0,maximumFractionDigits:d||0});}
+
+function isoDate(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);}
+
+function getPeriodDates(){
+
+  var now=new Date(),y=now.getFullYear(),m=now.getMonth();
+
+  if(mode==='day'){var d=new Date(y,m,now.getDate()-offset);return{from:isoDate(d),to:isoDate(d),label:d.getDate()+' '+MONTHS[d.getMonth()]+' '+(d.getFullYear()+543)};}
+
+  if(mode==='week'){var mon=new Date(now);mon.setDate(now.getDate()-now.getDay()+1-offset*7);var sun=new Date(mon);sun.setDate(mon.getDate()+6);return{from:isoDate(mon),to:isoDate(sun),label:mon.getDate()+'/'+('0'+(mon.getMonth()+1)).slice(-2)+' \u2013 '+sun.getDate()+'/'+('0'+(sun.getMonth()+1)).slice(-2)};}
+
+  var pm=new Date(y,m-offset,1),pe=new Date(pm.getFullYear(),pm.getMonth()+1,0);
+
+  return{from:isoDate(pm),to:isoDate(pe),label:MONTHS[pm.getMonth()]+' '+(pm.getFullYear()+543)};
+
+}
+
+function inPeriod(dateStr){var p=getPeriodDates();return dateStr>=p.from&&dateStr<=p.to;}
+
+function showTab(name,el){
+
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+
+  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
+
+  document.getElementById('tab-'+name).classList.add('active');el.classList.add('active');
+
+}
+
+function setMode(m){mode=m;offset=0;chartOffset=0;render();}
+
+function navigate(dir){offset=Math.max(0,offset+dir);chartOffset=0;render();}
+
+function toggleDrv(el){var d=el.dataset.drv;activeDrv[d]=!activeDrv[d];el.classList.toggle('on-'+d.toLowerCase(),activeDrv[d]);render();}
+
+function setBarMetric(m,el){barMetric=m;el.parentElement.querySelectorAll('.tg').forEach(function(t){t.classList.remove('active');});el.classList.add('active');renderBar();}
+
+function setChartMetric(m,el){chartMetric=m;el.parentElement.querySelectorAll('.tg').forEach(function(t){t.classList.remove('active');});el.classList.add('active');renderChart();}
+
+function chartNav(dir){
+
+  chartOffset = Math.max(0, chartOffset - dir);
+
+  renderChart();
+
+}
+
+function setEffDrv(d,el){effDrv=d;effOffset=0;el.parentElement.querySelectorAll('.tg').forEach(function(t){t.classList.remove('active');});el.classList.add('active');renderEff();}
+
+function effNav(dir){effOffset=Math.max(0,effOffset+dir);renderEff();}
+
+function render(){
+
+  if(!RAW)return;
+
+  var p=getPeriodDates();
+
+  document.getElementById('periodLbl').textContent=p.label;
+
+  document.getElementById('filterSub').textContent=p.from+' \u2013 '+p.to;
+
+  var fuel=RAW.fuel.filter(function(r){return inPeriod(r.date)&&activeDrv[r.driver];});
+
+  var eff=(RAW.efficiency||[]).filter(function(r){return inPeriod(r.date)&&activeDrv[r.driver];});
+
+  var mile=(RAW.mileage||[]).filter(function(r){return inPeriod(r.date)&&activeDrv[r.driver];});
+
+  var totalKm=eff.reduce(function(s,r){return s+(r.km||0);},0);
+
+  var totalL=fuel.reduce(function(s,r){return s+r.liters;},0);
+
+  var totalA=fuel.reduce(function(s,r){return s+r.amount;},0);
+
+  var kplAvg=totalKm>0&&totalL>0?Math.round(totalKm/totalL*100)/100:null;
+
+  document.getElementById('s-km').textContent=fmt(totalKm,0);
+
+  document.getElementById('s-liters').textContent=fmt(totalL,1);
+
+  document.getElementById('s-amount').textContent=fmt(totalA,0);
+
+  document.getElementById('s-kpl').textContent=fmt(kplAvg,2);
+
+  var drvHtml='';
+
+  ['A','B','C'].forEach(function(d){
+
+    if(!activeDrv[d])return;
+
+    var df=fuel.filter(function(r){return r.driver===d;});
+
+    var de=eff.filter(function(r){return r.driver===d;});
+
+    var dm=(RAW.mileage||[]).filter(function(r){return r.driver===d&&r.kmToday!=null&&inPeriod(r.date);});
+
+    var L=df.reduce(function(s,r){return s+r.liters;},0);
+
+    var A=df.reduce(function(s,r){return s+r.amount;},0);
+
+    var totalKmD=de.reduce(function(s,r){return s+(r.km||0);},0);
+
+    var kpl=totalKmD>0&&L>0?Math.round(totalKmD/L*100)/100:null;
+
+    var kpb=totalKmD>0&&A>0?Math.round(totalKmD/A*1000)/1000:null;
+
+    var kpd=dm.length?Math.round(dm.reduce(function(s,r){return s+r.kmToday;},0)/dm.length):null;
+
+    var plates=RAW.mileage.filter(function(r){return r.driver===d&&r.plate;});
+
+    var plate=plates.length?plates[plates.length-1].plate:'\u2014';
+
+    drvHtml+='<div class="drv-card"><div class="drv-head"><div class="badge '+BADGE[d]+'">'+ d+'</div>'
+
+      +'<div><div class="drv-name">คนขับ '+DRV_NAME[d]+'</div><div class="drv-plate">'+plate+'</div></div></div>'
+
+      +'<div class="kpi-grid">'
+
+      +'<div class="kpi"><div class="kpi-label">\u0e23\u0e30\u0e22\u0e30\u0e17\u0e32\u0e07</div><div class="kpi-val">'+fmt(totalKmD,0)+' <span class="kpi-unit">\u0e01\u0e21.</span></div></div>'
+
+      +'<div class="kpi"><div class="kpi-label">\u0e01\u0e21./\u0e27\u0e31\u0e19 \u0e40\u0e09\u0e25\u0e35\u0e48\u0e22</div><div class="kpi-val">'+fmt(kpd,0)+' <span class="kpi-unit">\u0e01\u0e21.</span></div></div>'
+
+      +'<div class="kpi"><div class="kpi-label">\u0e01\u0e21./\u0e25\u0e34\u0e15\u0e23</div><div class="kpi-val '+(kpl&&kpl<6.5?'warn':'good')+ '">'+ fmt(kpl,2)+'</div></div>'
+
+      +'<div class="kpi"><div class="kpi-label">\u0e01\u0e21./\u0e1a\u0e32\u0e17</div><div class="kpi-val">'+ fmt(kpb,3)+'</div></div>'
+
+      +'</div><div class="divider"></div>'
+
+      +'<div class="fuel-row"><span>\u0e19\u0e49\u0e33\u0e21\u0e31\u0e19</span><span class="fuel-val">'+fmt(L,1)+' \u0e25. \u00b7 '+fmt(A,0)+' \u0e3f</span></div>'
+
+      +'<div class="fuel-row"><span>\u0e23\u0e32\u0e04\u0e32\u0e40\u0e09\u0e25\u0e35\u0e48\u0e22</span><span class="fuel-val">'+(L>0?fmt(A/L,2):'\u2014')+' \u0e3f/\u0e25.</span></div>'
+
+      +'</div>';
+
+  });
+
+  document.getElementById('drvCards').innerHTML=drvHtml||'<div class="empty">\u0e44\u0e21\u0e48\u0e21\u0e35\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25</div>';
+
+  renderBar();renderChart();renderEff();renderTable();
+
+}
+
+function renderBar(){
+
+  if(!RAW)return;
+
+  var eff=(RAW.efficiency||[]).filter(function(r){return inPeriod(r.date)&&activeDrv[r.driver];});
+
+  var fuel=RAW.fuel.filter(function(r){return inPeriod(r.date)&&activeDrv[r.driver];});
+
+  var mile=(RAW.mileage||[]).filter(function(r){return inPeriod(r.date)&&activeDrv[r.driver]&&r.kmToday!=null;});
+
+  var vals={},maxVal=0;
+
+  ['A','B','C'].forEach(function(d){
+
+    if(!activeDrv[d])return;
+
+    var de=eff.filter(function(r){return r.driver===d;});
+
+    var df=fuel.filter(function(r){return r.driver===d;});
+
+    var dm=(RAW.mileage||[]).filter(function(r){return r.driver===d&&r.kmToday!=null&&inPeriod(r.date);});
+
+    var totalKmD=de.reduce(function(s,r){return s+(r.km||0);},0);
+
+    var totalL=df.reduce(function(s,r){return s+r.liters;},0);
+
+    var totalA=df.reduce(function(s,r){return s+r.amount;},0);
+
+    var v=null;
+
+    if(barMetric==='kpl') v=totalKmD>0&&totalL>0?Math.round(totalKmD/totalL*100)/100:null;
+
+    else if(barMetric==='kpb') v=totalKmD>0&&totalA>0?Math.round(totalKmD/totalA*1000)/1000:null;
+
+    else if(barMetric==='kpd') v=dm.length?Math.round(dm.reduce(function(s,r){return s+r.kmToday;},0)/dm.length):null;
+
+    vals[d]=v;if(v&&v>maxVal)maxVal=v;
+
+  });
+
+  var html='';
+
+  ['A','B','C'].forEach(function(d){
+
+    if(!activeDrv[d])return;
+
+    var v=vals[d],pct=v&&maxVal?Math.round((v/maxVal)*90):0;
+
+    var unit=barMetric==='kpl'?'กม./ล.'  :barMetric==='kpb'?'กม./฿':'กม./วัน';
+
+    var dp=barMetric==='kpl'?2:barMetric==='kpb'?3:0;
+
+    var isBad=barMetric==='kpl'&&v&&v<6.5;
+
+    var color=isBad?'#dc2626':COLORS[d];
+
+    html+='<div class="bar-row"><div class="bar-label'+(isBad?' warn':'')+'">คนขับ '+DRV_NAME[d]+'</div>'
+
+      +'<div class="bar-track"><div class="bar-fill" style="width:'+pct+'%;background:'+color+';"></div></div>'
+
+      +'<div class="bar-val'+(isBad?' warn':' good')+ '">'+fmt(v,dp)+' '+unit+'</div></div>';
+
+  });
+
+  document.getElementById('barArea').innerHTML=html||'<div class="empty">ไม่มีข้อมูล</div>';
+
+  document.getElementById('barNote').textContent=barMetric==='kpl'?'เป้าหมาย: 7.0 กม./ล. · สีแดง = ต่ำกว่าเป้า':'';
+
+}
+
+function renderChart(){
+
+  if(!RAW)return;
+
+  var allData=chartMetric==='kpl'?(RAW.efficiency||[]):chartMetric==='fuel'?RAW.fuel:(RAW.mileage||[]).filter(function(r){return r.kmToday!=null;});
+
+  var groups={};
+
+  allData.forEach(function(r){
+
+    if(!activeDrv[r.driver])return;
+
+    var k;
+
+    if(mode==='day') k=r.date;
+
+    else if(mode==='week'){var d=new Date(r.date);d.setDate(d.getDate()-d.getDay()+1);k=isoDate(d);}
+
+    else k=r.date.slice(0,7);
+
+    if(!groups[k])groups[k]={A:0,B:0,C:0,nA:0,nB:0,nC:0};
+
+    var v=chartMetric==='kpl'?(r.kpl||0):chartMetric==='fuel'?r.liters:(r.kmToday||0);
+
+    groups[k][r.driver]+=v;groups[k]['n'+r.driver]++;
+
+  });
+
+  var keys=Object.keys(groups).sort();
+
+  var sizes={day:14,week:10,month:6},size=sizes[mode];
+
+  var p=getPeriodDates();
+
+  var periodKey=mode==='month'?p.from.slice(0,7):p.from;
+
+  var centerIdx=keys.length-1;
+
+  for(var ci=0;ci<keys.length;ci++){if(keys[ci]>=periodKey){centerIdx=ci;break;}}
+
+  var baseStart=Math.max(0,Math.min(centerIdx,keys.length-size));
+
+  var effectiveOffset=Math.max(0,Math.min(chartOffset,baseStart));
+
+  var start=Math.max(0,baseStart-effectiveOffset);
+
+  var win=keys.slice(start,start+size);
+
+  document.getElementById('cPrev').disabled=start<=0;
+
+  document.getElementById('cNext').disabled=start+size>=keys.length;
+
+  if(win.length){
+
+    var fk=win[0],lk=win[win.length-1];
+
+    if(mode==='month')document.getElementById('cPeriod').textContent=MONTHS[parseInt(fk.slice(5,7))-1]+' \u2013 '+MONTHS[parseInt(lk.slice(5,7))-1]+' '+(parseInt(lk.slice(0,4))+543);
+
+    else document.getElementById('cPeriod').textContent=fk.slice(8)+'/'+fk.slice(5,7)+' \u2013 '+lk.slice(8)+'/'+lk.slice(5,7);
+
+  }
+
+  var maxVal=0;
+
+  win.forEach(function(k){['A','B','C'].forEach(function(d){var g=groups[k];var v=chartMetric==='kpl'?(g['n'+d]>0?g[d]/g['n'+d]:0):g[d];if(v>maxVal)maxVal=v;});});
+
+  var nMax=Math.ceil((maxVal*1.15)/5)*5||1,H=130,yL='',yLb='';
+
+  for(var i=0;i<=3;i++){yL+='<div class="y-line"></div>';var val=Math.round(nMax*(3-i)/3);yLb+='<div class="y-lbl">'+val+'</div>';}
+
+  document.getElementById('yLines').innerHTML=yL;
+
+  document.getElementById('yLabels').innerHTML=yLb;
+
+  var bHtml='',xHtml='';
+
+  win.forEach(function(k){
+
+    var g=groups[k];bHtml+='<div class="grp">';
+
+    ['A','B','C'].forEach(function(d){
+
+      if(!activeDrv[d]){bHtml+='<div class="b ba-b" style="height:2px;opacity:.1;"></div>';return;}
+
+      var v=chartMetric==='kpl'?(g['n'+d]>0?g[d]/g['n'+d]:0):g[d];
+
+      bHtml+='<div class="b b'+d.toLowerCase()+'-b" style="height:'+Math.max(2,Math.round((v/nMax)*H))+'px;"></div>';
+
+    });
+
+    bHtml+='</div>';
+
+    var lbl=mode==='month'?MONTHS[parseInt(k.slice(5,7))-1]:k.slice(8)+'/'+k.slice(5,7);
+
+    xHtml+='<div class="x-lbl">'+lbl+'</div>';
+
+  });
+
+  document.getElementById('barsWrap').innerHTML=bHtml;
+
+  document.getElementById('xLabels').innerHTML=xHtml;
+
+}
+
+function renderEff(){
+
+  if(!RAW)return;
+
+  var all=(RAW.efficiency||[]).filter(function(r){return(effDrv==='all'||r.driver===effDrv);}).sort(function(a,b){return a.date<b.date?1:-1;});
+
+  var total=all.length;
+
+  var maxOff=Math.max(0,total-EFF_PAGE_SIZE);
+
+  effOffset=Math.max(0,Math.min(effOffset,maxOff));
+
+  var start=effOffset;
+
+  var eff=all.slice(start,start+EFF_PAGE_SIZE);
+
+  document.getElementById('ePrev').disabled=effOffset>=maxOff;
+
+  document.getElementById('eNext').disabled=effOffset<=0;
+
+  var from=total-effOffset,to=Math.max(1,total-effOffset-EFF_PAGE_SIZE+1);
+
+  document.getElementById('effPage').textContent=total>0?'ครั้งที่ '+to+' – '+from+' (จาก '+total+')':'ไม่มีข้อมูล';
+
+  var maxKm=eff.reduce(function(s,r){return Math.max(s,r.km||0);},0)||1;
+
+  document.getElementById('effList').innerHTML=eff.map(function(r){
+
+    var pct=Math.round((r.km/maxKm)*90),bad=r.kpl&&r.kpl<6.5;
+
+    return '<div class="eff-item"><div>'+r.date.slice(5).replace('-','/')+' <span class="mb '+BADGE[r.driver]+'">'+DRV_NAME[r.driver]+'</span></div>'
+
+      +'<div class="eff-fill"><div class="eff-fill-in" style="width:'+pct+'%;background:'+(bad?'#dc2626':COLORS[r.driver])+';"></div></div>'
+
+      +'<div class="eff-val '+(bad?'warn':'good')+'">'+( r.km||'—')+' กม.</div>'
+
+      +'<div class="eff-sub">'+(r.liters||0)+' ล. · '+(r.kpl?r.kpl.toFixed(2):'—')+' กม./ล.</div></div>';
+
+  }).join('')||'<div class="empty">ไม่มีข้อมูล</div>';
+
+}
+
+function renderTable(){
+
+  if(!RAW)return;
+
+  var effAll=(RAW.efficiency||[]).filter(function(r){return activeDrv[r.driver];}).sort(function(a,b){return a.date<b.date?1:-1;});
+
+  var effInPeriod=effAll.filter(function(r){return inPeriod(r.date);});
+
+  var eff=effInPeriod.length>0?effInPeriod:effAll.slice(0,30);
+
+  eff=eff.slice(0,30);
+
+  document.getElementById('mainTable').innerHTML=eff.map(function(r){
+
+    var ppl=r.amount&&r.liters?r.amount/r.liters:null;
+
+    return '<tr><td>'+r.date.slice(5).replace('-','/')+'</td><td><span class="mb '+BADGE[r.driver]+'">'+DRV_NAME[r.driver]+'</span></td><td>'+r.station+'</td><td>'+(r.km||'\u2014')+'</td><td>'+fmt(r.liters,1)+'</td><td>'+fmt(r.amount,0)+'</td><td>'+fmt(ppl,2)+'</td><td class="'+(r.kpl&&r.kpl<6.5?'warn':'good')+ '">'+fmt(r.kpl,2)+'</td><td>'+fmt(r.kpb,3)+'</td></tr>';
+
+  }).join('')||'<tr><td colspan="9" class="empty">\u0e44\u0e21\u0e48\u0e21\u0e35\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25</td></tr>';
+
+}
+
+window.addEventListener('load',function(){
+
+  var p=getPeriodDates();
+  document.getElementById('periodLbl').textContent=p.label;document.getElementById('filterSub').textContent=p.from+' \u2013 '+p.to;
+
+  callGAS('getDashboardData')
+
+    .then(function(data){RAW=data;render();})
+
+    .catch(function(err){document.getElementById('drvCards').innerHTML='<div class="empty">\u274c '+err.message+'</div>';});
+
+});
+
+</script>
+
+</body>
+
+</html>
