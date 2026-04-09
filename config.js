@@ -39,7 +39,7 @@ const ZUNIC_CONFIG = {
 // ─────────────────────────────────────────────
 
 function callGAS(action, params) {
-  // GET request (ใช้กับ functions ที่ไม่แก้ข้อมูล)
+  // GET request (ใช้กับ functions ที่ไม่แก้ข้อมูล)h
   var GET_ACTIONS = [
     'getJobsToday', 'getConfirmedSchedule', 'getDashboardData',
     'lookupCustomer', 'validateCustomerCode', 'getScheduleByDate',
@@ -57,7 +57,9 @@ var ALL_GET = GET_ACTIONS.concat(['saveFuel','saveMileage','saveJobs',
     var url = ZUNIC_CONFIG.GAS_URL + '?action=' + encodeURIComponent(action);
     if (params) {
       Object.keys(params).forEach(function(k) {
-        url += '&' + encodeURIComponent(k) + '=' + encodeURIComponent(params[k] || '');
+        var v = params[k];
+        if (typeof v === 'object') v = JSON.stringify(v);
+        url += '&' + encodeURIComponent(k) + '=' + encodeURIComponent(v || '');
       });
     }
     return fetch(url)
