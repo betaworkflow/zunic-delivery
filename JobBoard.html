@@ -1024,7 +1024,7 @@ function quickAdd(id, d, e) {
   e.stopPropagation();
   if (sched[d].includes(id)) { toast('⚠️ รายการนี้อยู่ในตารางคนขับ ' + (d) + ' แล้ว'); return; }
   sched[d].push(id); sel.delete(id);
-  callGAS('syncJobToSchedule', { id: id, driver: d, order: sched[d].length });
+  callGAS('syncJobToSchedule', { jobId: id, driver: d, order: sched[d].length });
   drv = d;
   document.querySelectorAll('.driver-tab').forEach(t => t.classList.remove('active'));
   document.querySelector('.driver-tab.d-' + (d.toLowerCase())).classList.add('active');
@@ -1091,7 +1091,7 @@ function addSelToSched() {
   schedSaved = false;
   if (!sel.size) return;
   let n = 0; sel.forEach(id => { if (!sched[drv].includes(id)) { sched[drv].push(id); n++;
-    callGAS('syncJobToSchedule', { id: id, driver: drv, order: sched[drv].length });
+    callGAS('syncJobToSchedule', { jobId: id, driver: drv, order: sched[drv].length });
   } });
   sel.clear(); renderJobs(); renderSched(); updateAddBtn(); updateCounts();
   toast('✓ เพิ่ม ' + (n) + ' รายการ -> คนขับ ' + (DRV_NAME[drv]));
@@ -1099,7 +1099,7 @@ function addSelToSched() {
 function removeFromSched(id) {
   schedSaved = false;
   Object.keys(sched).forEach(d => sched[d] = sched[d].filter(x => x !== id));
-  callGAS('syncJobToSchedule', { id: id, driver: '', order: 0 });
+  callGAS('syncJobToSchedule', { jobId: id, driver: '', order: 0 });
   renderJobs(); renderSched(); updateCounts();
 }
 function clearSched() {
